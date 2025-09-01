@@ -1,502 +1,195 @@
-<!-- INÍCIO DO ARQUIVO - Cole tudo este conteúdo no index.html (substituir todo o arquivo atual) -->
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MakeMaster - Admin + Palpites</title>
-<style>
-  :root{--dark:#0d1b2a;--gold:#facc15;--bg:#f7fafc;--card:#fff}
-  *{box-sizing:border-box}
-  body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:#111}
-  header{background:linear-gradient(135deg,var(--dark),#1b263b);color:#fff;padding:14px 18px;position:sticky;top:0;z-index:20}
-  .wrap{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .brand h1{margin:0;font-size:1.4rem;color:var(--gold)}
-  nav a{color:var(--gold);text-decoration:none;margin-left:12px;font-weight:600}
-  main{max-width:1000px;margin:22px auto;padding:0 16px}
-  .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 8px 20px rgba(2,6,23,.06);margin-bottom:18px}
-  table{width:100%;border-collapse:collapse;margin-top:10px}
-  th,td{padding:8px;text-align:center;border:1px solid #e6e9ee}
-  th{background:#111827;color:#fff}
-  .muted{color:#55607a}
-  .btn{background:var(--dark);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
-  .btn-gold{background:var(--gold);color:#0b1220}
-  .flex{display:flex;gap:8px;align-items:center}
-  .input{padding:8px;border-radius:8px;border:1px solid #d1d5db;width:100%}
-  .small{font-size:.9rem;color:#374151}
-  .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--gold);color:#071029;font-weight:700}
-  .locked{opacity:.6}
-  footer{text-align:center;padding:18px;background:#0d1b2a;color:#cbd5e1;margin-top:20px}
-  .admin-area{display:none;margin-top:12px}
-  .row{display:flex;gap:10px}
-  .col{flex:1}
-  .toggle{cursor:pointer;padding:6px 10px;border-radius:8px;border:1px solid #cbd5e1}
-  .notify{position:fixed;right:18px;bottom:18px;background:#08122a;color:#fff;padding:12px;border-radius:10px;box-shadow:0 8px 20px rgba(2,6,23,.2);display:none}
-  .promo{background:#fde68a;padding:6px 8px;border-radius:8px;display:inline-block;margin-left:8px;font-weight:700}
-  .hidden{display:none}
-  @media(max-width:720px){ .wrap{flex-direction:column;align-items:flex-start} .row{flex-direction:column} .brand h1{font-size:1.2rem} }
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MakeMaster - Palpites</title>
+  <style>
+    :root{--black:#0b0b0b;--yellow:#facc15;--red:#ef4444;--bg:#f7f7f8;--card:#ffffff}
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:#111}
+    header{background:var(--black);color:#fff;padding:14px 18px;position:sticky;top:0;z-index:20}
+    .wrap{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand h1{margin:0;font-size:1.4rem;color:var(--yellow)}
+    nav a{color:var(--yellow);text-decoration:none;margin-left:12px;font-weight:600}
+    main{max-width:1000px;margin:22px auto;padding:0 16px}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 8px 20px rgba(2,6,23,.06);margin-bottom:18px}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:8px;text-align:center;border:1px solid #e6e6e6}
+    th{background:var(--black);color:#fff}
+    .btn{background:var(--black);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+    .btn-yellow{background:var(--yellow);color:#0b0b0b}
+    .hl{color:var(--yellow);font-weight:700}
+    .res-win{color:green;font-weight:700}
+    .res-lose{color:var(--red);font-weight:700}
+    .res-wait{color:#b45309;font-weight:700}
+    footer{text-align:center;padding:18px;background:#0d0d0d;color:#ddd;margin-top:20px}
+    .locked{background:#fff7ed;border:1px dashed #f59e0b;padding:10px;border-radius:8px}
+    @media(max-width:720px){ .wrap{flex-direction:column;align-items:flex-start} }
+  </style>
 </head>
 <body>
-
 <header>
   <div class="wrap">
     <div class="brand">
       <h1>⚽ MakeMaster 🎯</h1>
-      <div class="small">Os melhores palpites de Futebol, Basquetebol e Tênis</div>
+      <div style="font-size:.95rem;color:#d1d5db">Futebol • Basquetebol • Tênis</div>
     </div>
-
     <nav>
-      <a href="#gratis">Palpites Gratuitos</a>
-      <a href="#premium">Palpites Premium</a>
+      <a href="#dia">Palpites do Dia</a>
+      <a href="#hist">Histórico</a>
       <a href="#contato">Contato</a>
-      <button id="openLoginBtn" class="btn" title="Área administrativa">Admin</button>
+      <a href="#admin" style="margin-left:10px;" class="btn">Admin</a>
     </nav>
   </div>
 </header>
 
 <main>
-  <!-- NOTIFICAÇÃO VISÍVEL -->
-  <div id="notifyBox" class="notify"></div>
+  <!-- PALPITES DO DIA -->
+  <section id="dia" class="card">
+    <h2>🔥 Palpites do Dia</h2>
+    <p class="small">Abaixo: <span class="hl">2 grátis</span> e <span class="hl">5 pagos</span> (premium bloqueado).</p>
 
-  <!-- PUBLIC VIEW -->
-  <section id="publicView" class="card">
-    <h2>📢 Palpites Gratuitos</h2>
-    <p class="muted">Os palpites abertos aparecem aqui. Se quiser receber alertas, clique em "Receber notificações".</p>
-    <div class="flex" style="margin-top:8px;">
-      <button id="subscribeBtn" class="btn">Receber notificações</button>
-      <div class="small muted" style="margin-left:6px;">(As notificações só chegam se você aceitar e tiver a página aberta)</div>
+    <!-- EDITAR AQUI: PALPITES GRÁTIS (2 por dia) -->
+    <h3 style="margin-top:12px">🔓 Grátis</h3>
+    <table>
+      <tr><th>Hora</th><th>Esporte</th><th>Jogo</th><th>Palpite</th></tr>
+
+      <!-- Linha 1 - EXEMPLO: substitui os valores -->
+      <tr>
+        <td>18:00</td>
+        <td>Futebol</td>
+        <td>Benfica x Porto</td>
+        <td>+2.5 Gols</td>
+      </tr>
+
+      <!-- Linha 2 - EXEMPLO: substitui os valores -->
+      <tr>
+        <td>20:30</td>
+        <td>Basquetebol</td>
+        <td>Lakers x Celtics</td>
+        <td>Lakers vence</td>
+      </tr>
+    </table>
+    <!-- FIM PALPITES GRÁTIS -->
+
+    <!-- EDITAR AQUI: PALPITES PAGOS (5 por dia) -->
+    <h3 style="margin-top:16px">🔒 Premium (Pago) <span style="color:var(--red);margin-left:10px">Promoção: 1 mês — 5.000 Kz</span></h3>
+
+    <!-- Botão de pagamento simulado -->
+    <div style="margin:8px 0" class="locked">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div>
+          <b>Pagamento por referência (simulação)</b><br>
+          Entidade: <b>12345</b> • Referência: <b>000000000</b> (será gerada automaticamente quando integrar)
+        </div>
+        <div>
+          <button id="simPayBtn" class="btn btn-yellow">Simular Pagamento</button>
+        </div>
+      </div>
     </div>
-    <div id="freeContainer" style="margin-top:12px"></div>
+
+    <table>
+      <tr><th>Hora</th><th>Esporte</th><th>Jogo</th><th>Palpite (bloqueado)</th></tr>
+
+      <!-- Linha 1 pago (bloqueado): substitui com teu palpite -->
+      <tr>
+        <td>19:00</td>
+        <td>Futebol</td>
+        <td>Real Madrid x Barcelona</td>
+        <td>🔒 Pago — visualizar apenas para assinantes</td>
+      </tr>
+
+      <!-- Linha 2 pago -->
+      <tr>
+        <td>19:30</td>
+        <td>Basquetebol</td>
+        <td>Chicago Bulls x Miami Heat</td>
+        <td>🔒 Pago — visualizar apenas para assinantes</td>
+      </tr>
+
+      <!-- Linha 3 pago -->
+      <tr>
+        <td>20:00</td>
+        <td>Tênis</td>
+        <td>Alcaraz x Medvedev</td>
+        <td>🔒 Pago — visualizar apenas para assinantes</td>
+      </tr>
+
+      <!-- Linha 4 pago -->
+      <tr>
+        <td>20:45</td>
+        <td>Futebol</td>
+        <td>Manchester City x Arsenal</td>
+        <td>🔒 Pago — visualizar apenas para assinantes</td>
+      </tr>
+
+      <!-- Linha 5 pago -->
+      <tr>
+        <td>21:30</td>
+        <td>Futebol</td>
+        <td>Atletico x Sevilla</td>
+        <td>🔒 Pago — visualizar apenas para assinantes</td>
+      </tr>
+    </table>
+    <!-- FIM PALPITES PAGOS -->
   </section>
 
-  <section id="premium" class="card">
-    <h2>💎 Palpites Premium <span class="promo">Promoção: 1 mês — 5.000 Kz</span></h2>
-    <p class="muted">Palpites premium bloqueados: faça o pagamento e envie comprovante WhatsApp para obter acesso (cliente não precisa criar conta).</p>
+  <!-- HISTÓRICO -->
+  <section id="hist" class="card">
+    <h2>📖 Histórico (últimos 10+)</h2>
+    <p class="small muted">Histórico visível apenas para assinantes (no teste será mostrado após pagar).</p>
 
-    <div id="premiumContainer" style="margin-top:12px"></div>
+    <!-- EDITAR AQUI: HISTÓRICO - adiciona linhas, pelo menos 10 registros -->
+    <table>
+      <tr><th>Data</th><th>Hora</th><th>Equipes</th><th>Tipo</th><th>Palpite</th><th>Resultado</th></tr>
 
-    <div style="margin-top:12px" class="card" id="payInfo">
-      <strong>Como pagar (promoção 1 mês - 5.000 Kz):</strong>
-      <ul class="small">
-        <li><b>MB WAY/Express:</b> 924227691</li>
-        <li><b>IBAN:</b> 0052 0000 3263 0991 1012 9</li>
-        <li><b>Titular:</b> Dorivaldo Bengui Pululo</li>
-      </ul>
-      <p class="small">Após pagamento, envie o comprovativo para WhatsApp: <b>924227691</b>. No comprovativo, coloque o e-mail usado (ou número) para identificação.</p>
-    </div>
+      <!-- Exemplos: substitui / adiciona linhas conforme necessidade -->
+      <tr><td>01/09/2025</td><td>21:00</td><td>Barcelona x Real Madrid</td><td>Pago</td><td>Real Madrid vence</td><td class="res-win">✔️ Ganhou</td></tr>
+      <tr><td>01/09/2025</td><td>19:30</td><td>Milan x Inter</td><td>Grátis</td><td>Ambos marcam</td><td class="res-lose">❌ Perdeu</td></tr>
+      <tr><td>31/08/2025</td><td>18:30</td><td>Chelsea x Arsenal</td><td>Pago</td><td>Ambos marcam</td><td class="res-wait">⏳ Aguardando</td></tr>
+      <tr><td>30/08/2025</td><td>20:00</td><td>Benfica x Porto</td><td>Grátis</td><td>+2.5 Gols</td><td class="res-win">✔️ Ganhou</td></tr>
+      <tr><td>29/08/2025</td><td>21:00</td><td>Real Madrid x Atletico</td><td>Pago</td><td>Real Madrid vence</td><td class="res-lose">❌ Perdeu</td></tr>
+      <tr><td>28/08/2025</td><td>19:00</td><td>Liverpool x Everton</td><td>Grátis</td><td>Ambos marcam</td><td class="res-win">✔️ Ganhou</td></tr>
+      <tr><td>27/08/2025</td><td>20:30</td><td>Juventus x Napoli</td><td>Pago</td><td>Juventus vence</td><td class="res-win">✔️ Ganhou</td></tr>
+      <tr><td>26/08/2025</td><td>18:00</td><td>Nadal x Djokovic</td><td>Pago</td><td>Djokovic vence</td><td class="res-lose">❌ Perdeu</td></tr>
+      <tr><td>25/08/2025</td><td>17:00</td><td>Spurs x Chelsea</td><td>Grátis</td><td>Ambos marcam</td><td class="res-wait">⏳ Aguardando</td></tr>
+      <tr><td>24/08/2025</td><td>21:30</td><td>AC Milan x Lazio</td><td>Pago</td><td>AC Milan vence</td><td class="res-win">✔️ Ganhou</td></tr>
+
+      <!-- FIM EXEMPLOS - adiciona mais linhas se quiseres -->
+    </table>
   </section>
 
   <!-- CONTATO / TERMOS -->
   <section id="contato" class="card">
-    <h2>📮 Contato & Termos</h2>
-    <p class="muted">Para dúvidas ou comprovativos: WhatsApp <b>924227691</b></p>
-    <p class="muted">Termos: acesso permitido somente para maiores de 18 anos. Aposte com responsabilidade.</p>
-  </section>
-
-  <!-- ADMIN (modal-like on page) -->
-  <section class="card admin-area" id="adminArea">
-    <h2>🔒 Painel Administrativo</h2>
-
-    <!-- Login -->
-    <div id="loginBox">
-      <p class="small muted">Faça login com seu e-mail e senha para acessar as ferramentas de edição.</p>
-      <div class="row" style="margin-top:8px">
-        <input id="adminEmail" class="input col" placeholder="Email"/>
-        <input id="adminPass" class="input col" placeholder="Senha" type="password"/>
-        <button id="loginBtn" class="btn">Entrar</button>
-      </div>
-      <div class="small muted" style="margin-top:8px">Usuário: <b>dorivaldopululo494@gmail.com</b> — Senha: <b>Rosalia20</b></div>
-    </div>
-
-    <!-- Dashboard -->
-    <div id="dashboard" class="hidden">
-      <div class="flex" style="justify-content:space-between;align-items:center">
-        <div>
-          <button id="addBetBtn" class="btn btn-gold">+ Novo Palpite</button>
-          <button id="saveLocalBtn" class="btn">Salvar local</button>
-          <button id="saveGitBtn" class="btn" title="Salvar direto no GitHub (opcional)">Salvar no GitHub</button>
-        </div>
-        <div class="small muted">Você está no modo ADMIN — alterações feitas aqui afetam o site.</div>
-      </div>
-
-      <div style="margin-top:12px" id="betsEditor"></div>
-
-      <hr style="margin:12px 0"/>
-
-      <div>
-        <h3 class="small">Opção GitHub (salvamento automático no repositório)</h3>
-        <p class="small muted">Se quiser persistir as alterações no repositório automaticamente, gere um <b>Personal Access Token</b> no GitHub (repo scope) e cole abaixo. O token NÃO é enviado a nenhum servidor — fica na sessão do seu navegador.</p>
-        <div class="row" style="margin-top:8px">
-          <input id="ghOwner" class="input col" placeholder="Owner (ex: dorivaldopululo494-maker)" value="dorivaldopululo494-maker"/>
-          <input id="ghRepo" class="input col" placeholder="Repo (ex: makemaster)" value="makemaster"/>
-        </div>
-        <div class="row" style="margin-top:8px">
-          <input id="ghToken" class="input col" placeholder="GitHub Personal Access Token (opcional)"/>
-          <button id="ghSaveBtn" class="btn">Configurar token</button>
-        </div>
-        <div class="small muted" style="margin-top:8px">Arquivo salvo no repo: <code>data/bets.json</code></div>
-      </div>
-    </div>
+    <h2>📮 Contato & Pagamento</h2>
+    <p><b>MB WAY/Express:</b> 924227691 • <b>IBAN:</b> 0052 0000 3263 0991 1012 9</p>
+    <p>Envie comprovativo para WhatsApp: <b>924227691</b></p>
+    <p class="small">Termos: apenas maiores de 18 anos. Aposte com responsabilidade.</p>
   </section>
 </main>
 
 <footer>
   <div>© 2025 MakeMaster — Todos os direitos reservados</div>
-  <div class="small muted">Desenvolvido por você — admin</div>
 </footer>
 
-<!-- SCRIPTS -->
+<!-- SCRIPT SIMPLES PARA BOTAO DE PAGAMENTO SIMULADO -->
 <script>
-/*
-  MakeMaster - admin + public single-file app
-  - Dados ficam em localStorage por padrão (chave: mm_bets)
-  - Pode sincronizar com GitHub via API: atualiza data/bets.json no repo
-  - Login admin: email: dorivaldopululo494@gmail.com  senha: Rosalia20
-  - Notificações: Browser Notification API + SpeechSynthesis
-*/
-
-// ---------- utilidades ----------
-const DEFAULT_EMAIL = "dorivaldopululo494@gmail.com";
-const DEFAULT_PASS = "Rosalia20";
-const STORAGE_KEY = "mm_bets_v1";
-const STORAGE_TOKEN = "mm_gh_token";
-const notifyBox = document.getElementById("notifyBox");
-
-function speak(text){
-  if('speechSynthesis' in window){
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'pt-PT';
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
-  }
-}
-function showNotify(msg, timeout=5000){
-  notifyBox.textContent = msg;
-  notifyBox.style.display = "block";
-  setTimeout(()=> notifyBox.style.display = "none", timeout);
-}
-
-// ---------- dados (modelo) ----------
-const sampleData = {
-  updated: new Date().toISOString(),
-  bets: [
-    // example structure:
-    // {id: 'b1', sport:'Futebol', time:'18:00', teams:'Benfica x Porto', tip:'+2.5', premium:false, visible:true}
-  ]
-};
-
-// ---------- carregar / salvar local ----------
-function loadLocal(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return sampleData;
-    return JSON.parse(raw);
-  }catch(e){ return sampleData }
-}
-function saveLocal(data){
-  data.updated = new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  speak("Palpite atualizado com sucesso!");
-  showNotify("Palpites salvos localmente");
-  // notificar clients abertos
-  localStorage.setItem('mm_last_update', Date.now());
-}
-
-// ---------- render público ----------
-function renderPublic(){
-  const state = loadLocal();
-  const freeContainer = document.getElementById("freeContainer");
-  const premiumContainer = document.getElementById("premiumContainer");
-  freeContainer.innerHTML = "";
-  premiumContainer.innerHTML = "";
-  const freeBets = state.bets.filter(b=> !b.premium && b.visible);
-  const premiumBets = state.bets.filter(b=> b.premium);
-  // free
-  if(freeBets.length===0) freeContainer.innerHTML = '<div class="small muted">Nenhum palpite gratuito no momento.</div>';
-  else {
-    const tbl = document.createElement('table');
-    tbl.innerHTML = '<tr><th>Hora</th><th>Esporte</th><th>Jogo</th><th>Palpite</th></tr>';
-    freeBets.forEach(b=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${b.time||''}</td><td>${b.sport||''}</td><td>${b.teams||''}</td><td>${b.tip||''}</td>`;
-      tbl.appendChild(tr);
+  document.getElementById('simPayBtn').addEventListener('click', function(){
+    // Simulação: desbloqueia os palpites pagos nesta sessão
+    alert('Pagamento simulado confirmado! Acesso premium liberado nesta sessão.');
+    // mostrar histórico premium: aqui abrimos todas as linhas pagas na página
+    // implementação simples: substitui as células de premium com o texto do palpite
+    const rows = document.querySelectorAll('#dia table tr');
+    rows.forEach(r=>{
+      // procura linhas que contenham '🔒 Pago'
+      if(r.innerHTML.includes('🔒 Pago')){
+        r.cells[3].textContent = 'Palpite: (exemplo) — agora visível';
+      }
     });
-    freeContainer.appendChild(tbl);
-  }
-  // premium
-  if(premiumBets.length===0) premiumContainer.innerHTML = '<div class="small muted">Nenhum palpite premium no momento.</div>';
-  else {
-    premiumBets.forEach(b=>{
-      const wrapper = document.createElement('div');
-      wrapper.className = 'card' + (b.locked? ' locked':'');
-      wrapper.style.marginBottom = '10px';
-      wrapper.innerHTML = `<strong>${b.sport||''} — ${b.teams||''}</strong>
-        <div class="small muted">Hora: ${b.time||''}</div>
-        <div style="margin-top:8px">${ b.visible && !b.locked ? `<div><b>Palpite:</b> ${b.tip||''}</div>` : `<div style="background:#fff7ed;padding:8px;border-radius:8px">🔒 Palpite bloqueado — para ver pague: <span class="hl">5.000 Kz / mês (promoção)</span></div>`}</div>`;
-      premiumContainer.appendChild(wrapper);
-    });
-  }
-}
-
-// ---------- editar bets (admin dashboard) ----------
-function uid(){ return 'id'+Math.random().toString(36).slice(2,9) }
-function renderEditor(){
-  const root = document.getElementById("betsEditor");
-  const state = loadLocal();
-  root.innerHTML = '';
-  // list existing
-  state.bets.forEach(b=>{
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.style.marginBottom = '12px';
-    div.innerHTML = `
-      <div class="row">
-        <input class="input col" data-field="teams" value="${escapeHtml(b.teams||'')}" />
-        <input class="input" data-field="time" style="width:120px" value="${escapeHtml(b.time||'')}" />
-      </div>
-      <div style="margin-top:8px" class="row">
-        <select class="input" data-field="sport" style="width:180px">
-          <option ${b.sport==='Futebol'?'selected':''}>Futebol</option>
-          <option ${b.sport==='Basquetebol'?'selected':''}>Basquetebol</option>
-          <option ${b.sport==='Tênis'?'selected':''}>Tênis</option>
-        </select>
-        <input class="input col" data-field="tip" value="${escapeHtml(b.tip||'')}" />
-      </div>
-      <div style="margin-top:8px" class="flex">
-        <label class="small">Premium?</label>
-        <input type="checkbox" data-field="premium" ${b.premium?'checked':''}/>
-        <label class="small" style="margin-left:12px">Visível?</label>
-        <input type="checkbox" data-field="visible" ${b.visible?'checked':''}/>
-        <label class="small" style="margin-left:12px">Bloqueado?</label>
-        <input type="checkbox" data-field="locked" ${b.locked?'checked':''}/>
-        <button class="btn" data-action="save">Salvar</button>
-        <button class="btn" data-action="delete" style="background:#a11">Apagar</button>
-      </div>
-    `;
-    // attach handlers
-    div.querySelectorAll('[data-action="save"]')[0].onclick = ()=>{
-      const inputs = div.querySelectorAll('[data-field]');
-      inputs.forEach(inp=>{
-        const key = inp.getAttribute('data-field');
-        if(inp.type==='checkbox') b[key] = inp.checked;
-        else b[key] = inp.value;
-      });
-      saveLocal(state);
-      renderEditor(); renderPublic();
-    };
-    div.querySelectorAll('[data-action="delete"]')[0].onclick = ()=>{
-      if(!confirm('Apagar este palpite?')) return;
-      state.bets = state.bets.filter(x=> x.id !== b.id);
-      saveLocal(state); renderEditor(); renderPublic();
-    };
-    root.appendChild(div);
+    // mostra histórico (em teste, assume que premium agora visível)
+    // podes adicionar lógica mais avançada depois
   });
-
-  // add form
-  const addForm = document.createElement('div');
-  addForm.className = 'card';
-  addForm.innerHTML = `
-    <h3 class="small">Novo palpite</h3>
-    <div class="row">
-      <input id="newTeams" class="input col" placeholder="Equipe A x Equipe B"/>
-      <input id="newTime" class="input" style="width:120px" placeholder="Hora (ex: 20:30)"/>
-    </div>
-    <div style="margin-top:8px" class="row">
-      <select id="newSport" class="input" style="width:180px">
-        <option>Futebol</option><option>Basquetebol</option><option>Tênis</option>
-      </select>
-      <input id="newTip" class="input col" placeholder="Palpite (ex: +2.5)"/>
-    </div>
-    <div style="margin-top:8px" class="flex">
-      <label class="small">Premium?</label><input id="newPremium" type="checkbox"/>
-      <label class="small" style="margin-left:10px">Visível?</label><input id="newVisible" type="checkbox" checked/>
-      <button id="createBet" class="btn btn-gold" style="margin-left:auto">Criar palpite</button>
-    </div>
-  `;
-  root.appendChild(addForm);
-  document.getElementById('createBet').onclick = ()=>{
-    const state = loadLocal();
-    const obj = {
-      id: uid(),
-      sport: document.getElementById('newSport').value,
-      teams: document.getElementById('newTeams').value,
-      time: document.getElementById('newTime').value,
-      tip: document.getElementById('newTip').value,
-      premium: document.getElementById('newPremium').checked,
-      visible: document.getElementById('newVisible').checked,
-      locked: document.getElementById('newPremium').checked // premium default locked
-    };
-    state.bets.unshift(obj);
-    saveLocal(state);
-    renderEditor(); renderPublic();
-    // if premium created, notify
-    if(obj.premium){
-      speak('Palpite premium publicado com sucesso');
-      broadcastNewPremium(obj);
-    } else {
-      speak('Palpite gratuito publicado');
-    }
-  };
-}
-
-// ---------- escape html helper ----------
-function escapeHtml(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-// ---------- admin login ----------
-document.getElementById('openLoginBtn').onclick = ()=>{
-  // show admin area
-  document.getElementById('adminArea').style.display = 'block';
-  window.scrollTo({top:document.getElementById('adminArea').offsetTop, behavior:'smooth'});
-};
-document.getElementById('loginBtn').onclick = ()=>{
-  const em = document.getElementById('adminEmail').value.trim();
-  const pw = document.getElementById('adminPass').value;
-  if(em===DEFAULT_EMAIL && pw===DEFAULT_PASS){
-    document.getElementById('loginBox').style.display = 'none';
-    document.getElementById('dashboard').classList.remove('hidden');
-    document.getElementById('dashboard').style.display = 'block';
-    speak('Login efetuado com sucesso');
-    showNotify('Login efetuado');
-    renderEditor();
-  } else {
-    alert('Credenciais inválidas');
-    speak('Usuário ou senha inválidos');
-  }
-};
-
-// ---------- subscribe notificações ----------
-document.getElementById('subscribeBtn').onclick = async ()=>{
-  if(!('Notification' in window)){
-    alert('Seu navegador não suporta notificações.');
-    return;
-  }
-  const perm = await Notification.requestPermission();
-  if(perm === 'granted'){
-    showNotify('Notificações ativadas');
-    speak('Notificações ativadas');
-  } else {
-    alert('Permissão de notificação negada.');
-  }
-};
-
-// ---------- broadcast entre abas para updates ----------
-window.addEventListener('storage',(e)=>{
-  if(e.key === 'mm_last_update'){
-    // novo update — recarregar visual público
-    renderPublic();
-    // show notification (in-page)
-    showNotify('Novos palpites publicados');
-    // se quiser, aviso por voz
-    speak('Novos palpites publicados');
-    // browser notification se permissão
-    if(Notification.permission === 'granted'){
-      new Notification('MakeMaster', {body:'Novos palpites foram publicados. Clique para abrir.'})
-    }
-  }
-});
-
-// Broadcast custom: quando publica premium, setamos mm_new_premium with json
-function broadcastNewPremium(obj){
-  localStorage.setItem('mm_new_premium', JSON.stringify({t:Date.now(), title: obj.teams}));
-  // attempt notification
-  if(Notification.permission === 'granted'){
-    new Notification('MakeMaster — Novo palpite premium', {body: `${obj.sport}: ${obj.teams}`});
-  }
-}
-
-// ---------- salvar no GitHub (opcional) ----------
-document.getElementById('ghSaveBtn').onclick = ()=>{
-  const token = document.getElementById('ghToken').value.trim();
-  if(!token){ alert('Cole o token do GitHub (Personal Access Token).'); return; }
-  sessionStorage.setItem(STORAGE_TOKEN, token);
-  showNotify('Token configurado na sessão');
-};
-
-async function saveToGitHub(){
-  const owner = document.getElementById('ghOwner').value.trim();
-  const repo = document.getElementById('ghRepo').value.trim();
-  const token = sessionStorage.getItem(STORAGE_TOKEN);
-  if(!owner||!repo||!token){
-    alert('Preencha owner/repo e configure o token (botão "Configurar token")');
-    return;
-  }
-  // prepare content
-  const data = loadLocal();
-  const path = 'data/bets.json';
-  const urlGet = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-  try{
-    // check if file exists to get sha
-    let sha = null;
-    const getResp = await fetch(urlGet, {headers:{Authorization:'token '+token}});
-    if(getResp.status === 200){
-      const j = await getResp.json(); sha = j.sha;
-    }
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-    const body = {message: 'Atualizar bets via painel', content};
-    if(sha) body.sha = sha;
-    const putResp = await fetch(urlGet, {
-      method:'PUT',
-      headers:{Authorization:'token '+token, 'Content-Type':'application/json'},
-      body: JSON.stringify(body)
-    });
-    if(putResp.ok){
-      showNotify('Dados salvos no GitHub');
-      speak('Dados salvos no GitHub');
-    } else {
-      const txt = await putResp.text();
-      alert('Erro ao salvar no GitHub: '+putResp.status + ' — ' + txt.slice(0,200));
-    }
-  }catch(err){
-    alert('Erro: '+err.message);
-  }
-}
-
-document.getElementById('saveLocalBtn').onclick = ()=>{
-  const state = loadLocal();
-  // already saved while editing; just ensure updated
-  saveLocal(state);
-};
-
-document.getElementById('saveGitBtn').onclick = async ()=>{
-  await saveToGitHub();
-};
-
-// ---------- add new bet btn open editor ----------
-document.getElementById('addBetBtn').onclick = ()=>{
-  window.scrollTo({top:document.getElementById('adminArea').offsetTop+200, behavior:'smooth'});
-};
-
-// ---------- init ----------
-function init(){
-  // load sample only if none
-  const cur = loadLocal();
-  if(!cur.bets || cur.bets.length===0){
-    // add a couple example bets
-    cur.bets = [
-      {id:uid(), sport:'Futebol', time:'18:00', teams:'Benfica x Porto', tip:'+2.5 Gols', premium:false, visible:true, locked:false},
-      {id:uid(), sport:'Basquetebol', time:'22:00', teams:'Lakers x Celtics', tip:'Vitória Lakers', premium:false, visible:true, locked:false},
-      {id:uid(), sport:'Futebol', time:'21:00', teams:'Real Madrid x Barcelona', tip:'Vitória Real Madrid', premium:true, visible:true, locked:true}
-    ];
-    saveLocal(cur);
-  }
-  renderPublic();
-  // if token in session, show hint
-  const t = sessionStorage.getItem(STORAGE_TOKEN);
-  if(t) showNotify('Token GitHub carregado (sessão)');
-}
-init();
-
-// helper: clicking premium publish triggers broadcast
-// Listen for new premium events
-window.addEventListener('storage', (e)=>{
-  if(e.key==='mm_new_premium'){
-    const obj = JSON.parse(e.newValue || '{}');
-    console.log('new premium', obj);
-  }
-});
-
 </script>
 </body>
 </html>
-<!-- FIM DO ARQUIVO -->
