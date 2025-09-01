@@ -5,111 +5,151 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MakeMaster - Palpites Esportivos</title>
   <style>
-    :root { --bg:#f8f9fa; --ink:#1b263b; --ink-2:#334155; --gold:#facc15; --dark:#0d1b2a; }
-    *{box-sizing:border-box}
-    body{
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin:0; background:var(--bg); color:var(--ink);
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f3f4f6;
+      color: #111;
     }
-    header{
-      position:sticky; top:0; z-index:10;
-      background: linear-gradient(135deg, var(--dark), #1b263b);
-      color:#fff; box-shadow:0 2px 10px rgba(0,0,0,.15);
+    header {
+      background: #111827;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
     }
-    .wrap{max-width:1000px; margin:0 auto; padding:16px 20px;}
-    .brand{display:flex; align-items:center; justify-content:space-between; gap:12px}
-    .brand h1{margin:0; font-size:1.8rem; color:var(--gold)}
-    .brand p{margin:6px 0 0; color:#cbd5e1; font-size:.95rem}
-    nav{margin-top:10px; display:flex; flex-wrap:wrap; gap:12px}
-    nav a{
-      color:var(--gold); text-decoration:none; font-weight:600; padding:8px 12px;
-      border-radius:999px; border:1px solid rgba(250, 204, 21, .35);
-      transition:.2s;
+    nav {
+      margin-top: 10px;
     }
-    nav a:hover{background:rgba(250, 204, 21, .12); color:#fff}
-    .container{max-width:1000px; margin:28px auto; padding:0 20px; display:grid; gap:22px}
-    .card{
-      background:#fff; border-radius:14px; padding:20px;
-      box-shadow:0 10px 24px rgba(2, 6, 23, .08);
-      border:1px solid #eef2f7; transition:transform .15s ease;
+    nav a {
+      color: #fff;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
     }
-    .card:hover{transform:translateY(-3px)}
-    .card h2{margin:0 0 10px; color:var(--ink)}
-    .muted{color:var(--ink-2)}
-    .hl{color:var(--gold); font-weight:700}
-    ul{margin:10px 0 0 18px}
-    footer{
-      margin-top:36px; background:var(--dark); color:#cbd5e1; text-align:center; padding:22px 12px;
+    nav a:hover {
+      text-decoration: underline;
     }
-    footer a{color:#fff; text-decoration:none; font-weight:600}
-    @media (min-width: 760px){ .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:22px} }
+    .container {
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #111827;
+      color: #fff;
+    }
+    footer {
+      background: #111827;
+      color: #fff;
+      text-align: center;
+      padding: 15px;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
   <header>
-    <div class="wrap">
-      <div class="brand">
-        <div>
-          <h1>⚽ MakeMaster 🎯</h1>
-          <p>Os melhores palpites de Futebol, Basquetebol e Tênis!</p>
-        </div>
-      </div>
-      <nav>
-        <a href="#">Início</a>
-        <a href="#gratis">Palpites Gratuitos</a>
-        <a href="#premium">Palpites Premium</a>
-        <a href="#contato">Contato</a>
-      </nav>
-    </div>
+    <h1>⚽ MakeMaster 🎯</h1>
+    <p>Os melhores palpites de Futebol, Basquetebol e Tênis!</p>
+    <nav>
+      <a href="#">Início</a>
+      <a href="#">Palpites Gratuitos</a>
+      <a href="#">Palpites Premium</a>
+      <a href="#">Contato</a>
+    </nav>
   </header>
 
-  <main class="container">
-    <section class="card">
-      <h2>🎉 Bem-vindo ao <span class="hl">MakeMaster</span></h2>
-      <p class="muted">Aqui você encontra palpites <b>confiáveis</b> para aumentar suas chances nas apostas esportivas. 🚀</p>
-    </section>
+  <div class="container">
 
-    <section id="gratis" class="card grid-2">
-      <div>
-        <h2>🎯 Palpites Gratuitos</h2>
-        <p class="muted">Atualizamos os palpites abertos regularmente.</p>
-        <ul>
-          <li><b>Futebol:</b> Benfica x Porto — Mais de 2.5 golos</li>
-          <li><b>Basquetebol:</b> Lakers x Celtics — Handicap +5.5 Celtics</li>
-          <li><b>Tênis:</b> Nadal x Djokovic — Djokovic vence</li>
-        </ul>
-      </div>
-      <div class="card" style="background:#0d9488; color:#fff;">
-        <h2 style="margin-top:0;">⚡ Dica Rápida</h2>
-        <p>Gestão de banca é tudo: arrisque no máximo <b>2% a 5%</b> por entrada.</p>
-      </div>
-    </section>
+    <!-- PALPITES GRATUITOS -->
+    <div class="card">
+      <h2>📢 Palpites Gratuitos</h2>
+      <table>
+        <tr>
+          <th>Hora</th>
+          <th>Esporte</th>
+          <th>Jogo</th>
+          <th>Palpite</th>
+        </tr>
+        <tr>
+          <td>18h00</td>
+          <td>Futebol</td>
+          <td>Real Madrid vs Barcelona</td>
+          <td>+2.5 gols</td>
+        </tr>
+        <tr>
+          <td>20h30</td>
+          <td>Basquetebol</td>
+          <td>Lakers vs Celtics</td>
+          <td>Lakers vence</td>
+        </tr>
+        <tr>
+          <td>22h00</td>
+          <td>Tênis</td>
+          <td>Nadal vs Djokovic</td>
+          <td>Nadal vence</td>
+        </tr>
+      </table>
+    </div>
 
-    <section id="premium" class="card">
-      <h2>💎 Acesso Premium</h2>
-      <p>Valor: <b class="hl">5.000 Kz</b> por semana.</p>
-      <p class="muted">Pagamento via MB WAY/Express ou IBAN:</p>
+    <!-- PALPITES PREMIUM -->
+    <div class="card">
+      <h2>💎 Palpites Premium</h2>
+      <p>Para ter acesso completo aos palpites exclusivos, faça seu pagamento:</p>
       <ul>
         <li><b>MB WAY/Express:</b> 924227691</li>
         <li><b>IBAN:</b> 0052 0000 3263 0991 1012 9</li>
         <li><b>Titular:</b> Dorivaldo Bengui Pululo</li>
       </ul>
       <p>📲 Envie o comprovativo para WhatsApp: <b>924227691</b></p>
-    </section>
+      <table>
+        <tr>
+          <th>Hora</th>
+          <th>Esporte</th>
+          <th>Jogo</th>
+          <th>Palpite</th>
+        </tr>
+        <tr>
+          <td>19h00</td>
+          <td>Futebol</td>
+          <td>Manchester City vs Arsenal</td>
+          <td>City vence</td>
+        </tr>
+        <tr>
+          <td>21h00</td>
+          <td>Basquetebol</td>
+          <td>Miami Heat vs Chicago Bulls</td>
+          <td>+190 pontos</td>
+        </tr>
+      </table>
+    </div>
 
-    <section class="card" id="contato">
-      <h2>📮 Contato</h2>
-      <p class="muted">Tem dúvidas? Fala conosco no WhatsApp <b>924227691</b>.</p>
-    </section>
-
-    <section class="card">
+    <div class="card">
       <h2>📌 Termos de Uso</h2>
-      <p class="muted">O acesso ao site é permitido apenas para <b>maiores de 18 anos</b>. Aposte com responsabilidade.</p>
-    </section>
-  </main>
+      <p>O acesso ao site é permitido apenas para maiores de 18 anos. Aposte com responsabilidade.</p>
+    </div>
+  </div>
 
   <footer>
-    <p>© 2025 MakeMaster — Todos os direitos reservados.</p>
+    <p>© 2025 MakeMaster - Todos os direitos reservados</p>
   </footer>
 </body>
 </html>
