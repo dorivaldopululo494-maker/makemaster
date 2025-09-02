@@ -1,155 +1,478 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MakeMaster - Palpites Esportivos</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f3f4f6;
-      color: #111;
-    }
-    header {
-      background: #111827;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-    }
-    nav {
-      margin-top: 10px;
-    }
-    nav a {
-      color: #fff;
-      margin: 0 10px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    nav a:hover {
-      text-decoration: underline;
-    }
-    .container {
-      padding: 20px;
-    }
-    .card {
-      background: #fff;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    table, th, td {
-      border: 1px solid #ccc;
-    }
-    th, td {
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background: #111827;
-      color: #fff;
-    }
-    footer {
-      background: #111827;
-      color: #fff;
-      text-align: center;
-      padding: 15px;
-      margin-top: 20px;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MakeMaster - Admin + Palpites</title>
+<style>
+  :root{--dark:#0d1b2a;--gold:#facc15;--bg:#f7fafc;--card:#fff}
+  *{box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:#111}
+  header{background:linear-gradient(135deg,var(--dark),#1b263b);color:#fff;padding:14px 18px;position:sticky;top:0;z-index:20}
+  .wrap{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand h1{margin:0;font-size:1.4rem;color:var(--gold)}
+  .brand p{margin:6px 0 0;color:#cbd5e1;font-size:.95rem}
+  nav{margin-left:18px;display:flex;align-items:center;gap:8px}
+  nav a{color:var(--gold);text-decoration:none;margin-left:12px;font-weight:600}
+  .icon{font-size:1.2rem;cursor:pointer;padding:6px;border-radius:8px}
+  .container{max-width:1000px;margin:28px auto;padding:0 20px}
+  .card{background:#fff;border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 6px 20px rgba(2,6,23,.06)}
+  .card h2{margin-top:0}
+  .small{font-size:.95rem;color:#53607a}
+  .btn{background:var(--dark);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+  .btn-gold{background:var(--gold);color:#0b1220;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+  .btn-red{background:#ef4444;color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th,td{padding:10px;border:1px solid #e6eef6;text-align:center}
+  th{background:var(--dark);color:#fff}
+  .locked{background:#fff7ed;padding:10px;border-radius:8px;border:1px dashed #f59e0b}
+  .badge{background:#fde68a;padding:6px 8px;border-radius:8px;font-weight:700}
+  footer{background:var(--dark);color:#d1d5db;text-align:center;padding:16px;margin-top:20px}
+  .notify{position:fixed;right:16px;bottom:16px;background:#08122a;color:#fff;padding:12px;border-radius:10px;display:none;z-index:99}
+  .hidden{display:none}
+  .result-win{color:green;font-weight:700}
+  .result-lose{color:#ef4444;font-weight:700}
+  .result-wait{color:#b45309;font-weight:700}
+  .input{padding:8px;border-radius:8px;border:1px solid #d1d5db;width:100%}
+  .row{display:flex;gap:8px;align-items:center}
+  .col{flex:1}
+  @media(max-width:720px){ .row{flex-direction:column} .wrap{flex-direction:column;align-items:flex-start} }
+</style>
 </head>
 <body>
-  <header>
-    <h1>⚽ MakeMaster 🎯</h1>
-    <p>Os melhores palpites de Futebol, Basquetebol e Tênis!</p>
+<header>
+  <div class="wrap">
+    <div>
+      <h1>⚽ MakeMaster 🎯</h1>
+      <p class="small">Os melhores palpites de Futebol, Basquetebol e Tênis</p>
+    </div>
     <nav>
-      <a href="#">Início</a>
-      <a href="#">Palpites Gratuitos</a>
-      <a href="#">Palpites Premium</a>
-      <a href="#">Contato</a>
+      <button id="tabAll" class="btn">Todos</button>
+      <button id="tabFootball" class="btn">⚽ Futebol</button>
+      <button id="tabBasket" class="btn">🏀 Basquetebol</button>
+      <button id="tabTennis" class="btn">🎾 Tênis</button>
+      <select id="lang" class="input" style="width:150px;margin-left:8px">
+        <option value="pt-BR">Português (BR)</option>
+        <option value="en">English</option>
+      </select>
+      <button id="openAdminBtn" class="btn" style="margin-left:10px">Admin</button>
     </nav>
-  </header>
-
-  <div class="container">
-
-    <!-- PALPITES GRATUITOS -->
-    <div class="card">
-      <h2>📢 Palpites Gratuitos</h2>
-      <table>
-        <tr>
-          <th>Hora</th>
-          <th>Esporte</th>
-          <th>Jogo</th>
-          <th>Palpite</th>
-        </tr>
-        <tr>
-          <td>18h00</td>
-          <td>Futebol</td>
-          <td>Real Madrid vs Barcelona</td>
-          <td>+2.5 gols</td>
-        </tr>
-        <tr>
-          <td>20h30</td>
-          <td>Basquetebol</td>
-          <td>Lakers vs Celtics</td>
-          <td>Lakers vence</td>
-        </tr>
-        <tr>
-          <td>22h00</td>
-          <td>Tênis</td>
-          <td>Nadal vs Djokovic</td>
-          <td>Nadal vence</td>
-        </tr>
-      </table>
-    </div>
-
-    <!-- PALPITES PREMIUM -->
-    <div class="card">
-      <h2>💎 Palpites Premium</h2>
-      <p>Para ter acesso completo aos palpites exclusivos, faça seu pagamento:</p>
-      <ul>
-        <li><b>MB WAY/Express:</b> 924227691</li>
-        <li><b>IBAN:</b> 0052 0000 3263 0991 1012 9</li>
-        <li><b>Titular:</b> Dorivaldo Bengui Pululo</li>
-      </ul>
-      <p>📲 Envie o comprovativo para WhatsApp: <b>924227691</b></p>
-      <table>
-        <tr>
-          <th>Hora</th>
-          <th>Esporte</th>
-          <th>Jogo</th>
-          <th>Palpite</th>
-        </tr>
-        <tr>
-          <td>19h00</td>
-          <td>Futebol</td>
-          <td>Manchester City vs Arsenal</td>
-          <td>City vence</td>
-        </tr>
-        <tr>
-          <td>21h00</td>
-          <td>Basquetebol</td>
-          <td>Miami Heat vs Chicago Bulls</td>
-          <td>+190 pontos</td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="card">
-      <h2>📌 Termos de Uso</h2>
-      <p>O acesso ao site é permitido apenas para maiores de 18 anos. Aposte com responsabilidade.</p>
-    </div>
   </div>
+</header>
 
-  <footer>
-    <p>© 2025 MakeMaster - Todos os direitos reservados</p>
-  </footer>
+<main class="container">
+  <div id="notify" class="notify"></div>
+
+  <!-- PALPITES DO DIA -->
+  <section id="todayCard" class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h2>🔥 Palpites do Dia</h2>
+        <div class="small">2 grátis • 5 pagos — <span class="badge">Promo: 1 mês — 5.000 Kz</span></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="subscribeBtn" class="btn">Receber notificações</button>
+        <button id="simulateBtn" class="btn-gold">Simular pagamento</button>
+      </div>
+    </div>
+
+    <h3 style="margin-top:12px">🔓 Palpites Gratuitos</h3>
+    <table id="freeTable">
+      <thead><tr><th>Hora</th><th>Esporte</th><th>Jogo</th><th>Palpite</th></tr></thead>
+      <tbody>
+        <!-- dois espaços vazios para preencher -->
+        <tr><td>--:--</td><td>Futebol</td><td>__________</td><td>__________</td></tr>
+        <tr><td>--:--</td><td>Basquetebol</td><td>__________</td><td>__________</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:14px">🔒 Palpites Premium (Pago)</h3>
+    <div class="locked" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <strong>Pagamento por referência (simulado)</strong><br>
+          Entidade: <b id="entidadeDisplay">12345</b> • Referência: <b id="refDisplay">000000000</b>
+        </div>
+        <div class="small">Promoção: <span class="badge">1 mês — 5.000 Kz</span></div>
+      </div>
+    </div>
+
+    <table id="paidTable">
+      <thead><tr><th>Hora</th><th>Esporte</th><th>Jogo</th><th>Palpite</th></tr></thead>
+      <tbody>
+        <!-- cinco espaços vazios para preencher (bloqueados) -->
+        <tr data-id=""><td>--:--</td><td>Futebol</td><td>__________</td><td>🔒 Pago</td></tr>
+        <tr data-id=""><td>--:--</td><td>Basquetebol</td><td>__________</td><td>🔒 Pago</td></tr>
+        <tr data-id=""><td>--:--</td><td>Tênis</td><td>__________</td><td>🔒 Pago</td></tr>
+        <tr data-id=""><td>--:--</td><td>Futebol</td><td>__________</td><td>🔒 Pago</td></tr>
+        <tr data-id=""><td>--:--</td><td>Futebol</td><td>__________</td><td>🔒 Pago</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- HISTÓRICO -->
+  <section id="historyCard" class="card">
+    <h2>📖 Histórico (últimos registros)</h2>
+    <p class="small">Histórico disponível para assinantes — no teste será mostrado após simular pagamento.</p>
+    <table id="historyTable">
+      <thead><tr><th>Data</th><th>Hora</th><th>Esporte</th><th>Evento</th><th>Tipo</th><th>Palpite</th><th>Resultado</th></tr></thead>
+      <tbody>
+        <!-- inicialmente vazio (admin preencherá) -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="adminPanel" class="card hidden">
+    <h2>🔒 Painel Administrativo</h2>
+
+    <!-- LOGIN -->
+    <div id="loginBox">
+      <p class="small">Faça login com seu e-mail e senha para acessar o painel.</p>
+      <div class="row" style="margin-top:8px">
+        <input id="adminEmail" class="input col" placeholder="Email" value="dorivaldopululo494@gmail.com"/>
+        <input id="adminPass" type="password" class="input col" placeholder="Senha" value="Rosalia20"/>
+        <button id="loginBtn" class="btn">Entrar</button>
+      </div>
+      <div class="small" style="margin-top:8px">Usuário: <b>dorivaldopululo494@gmail.com</b> — Senha: <b>Rosalia20</b></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="small">Modo ADMIN — edite palpites e histórico</div>
+        <div>
+          <button id="logoutBtn" class="btn">Sair</button>
+        </div>
+      </div>
+
+      <hr style="margin:10px 0"/>
+
+      <h3>Palpites do Dia — Editor</h3>
+      <div id="editorList"></div>
+      <div style="margin-top:10px">
+        <button id="addBetBtn" class="btn-gold">+ Novo palpite</button>
+        <button id="saveLocalBtn" class="btn" style="margin-left:8px">Salvar local</button>
+        <button id="saveGitBtn" class="btn" style="margin-left:8px">Salvar no GitHub (opcional)</button>
+      </div>
+
+      <hr style="margin:12px 0"/>
+
+      <h3>Histórico — Editor</h3>
+      <div id="histEditor"></div>
+      <button id="addHistBtn" class="btn-gold" style="margin-top:8px">+ Novo registro</button>
+
+      <hr style="margin:12px 0"/>
+
+      <h3>Configurações</h3>
+      <div class="row" style="gap:10px;margin-top:8px">
+        <div class="col small">Entidade (simulação): <input id="entidade" class="input" style="width:160px" value="12345"/></div>
+        <div class="col small">IBAN: <input id="iban" class="input" style="width:260px" value="0052 0000 3263 0991 1012 9"/></div>
+        <div class="col small">WhatsApp: <input id="wpp" class="input" style="width:160px" value="924227691"/></div>
+      </div>
+      <div class="small" style="margin-top:8px;color:#ef4444">Promoção: 1 mês — 5.000 Kz</div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div>© 2025 MakeMaster — Todos os direitos reservados</div>
+</footer>
+
+<script>
+/*
+  Single-file admin + public app.
+  - Dados guardados em localStorage (mm_bets_v3).
+  - Login client-side (prático). Admin: email dorivaldopululo494@gmail.com, senha Rosalia20.
+  - Simulação de pagamento desbloqueia premium na sessão.
+  - Botão "Salvar no GitHub" implementado de forma opcional via API (precisa de PAT).
+*/
+
+const ADMIN_EMAIL = 'dorivaldopululo494@gmail.com';
+const ADMIN_PASS = 'Rosalia20';
+const STORAGE_KEY = 'mm_bets_v3';
+const notify = document.getElementById('notify');
+
+function speak(text){
+  if('speechSynthesis' in window){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'pt-BR';
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  }
+}
+function showNotify(msg, t=3500){
+  notify.textContent = msg;
+  notify.style.display = 'block';
+  setTimeout(()=> notify.style.display = 'none', t);
+}
+
+function uid(){ return 'id'+Math.random().toString(36).slice(2,9) }
+
+function defaultStore(){
+  return {
+    bets: [
+      // admin will add; we start empty so you can fill
+    ],
+    history: [],
+    settings: {entidade:'12345', iban:'0052 0000 3263 0991 1012 9', wpp:'924227691'}
+  };
+}
+
+function loadStore(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultStore();
+    return JSON.parse(raw);
+  }catch(e){
+    return defaultStore();
+  }
+}
+
+function saveStore(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+  localStorage.setItem('mm_last_update', Date.now());
+  speak('Palpite atualizado com sucesso');
+  showNotify('Alterações salvas localmente');
+}
+
+// render public tables
+function renderToday(){
+  const freeBody = document.querySelector('#freeTable tbody');
+  const paidBody = document.querySelector('#paidTable tbody');
+  freeBody.innerHTML = '';
+  paidBody.innerHTML = '';
+
+  const free = store.bets.filter(b=> b.type==='free' && b.visible).slice(0,2);
+  const paid = store.bets.filter(b=> b.type==='paid' && b.visible).slice(0,5);
+
+  // free slots (2)
+  for(let i=0;i<2;i++){
+    const b = free[i] || {time:'--:--', sport:'', event:'__________', tip:'__________'};
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${b.time||'--:--'}</td><td>${b.sport||''}</td><td>${b.event||'__________'}</td><td>${b.tip||'__________'}</td>`;
+    freeBody.appendChild(tr);
+  }
+
+  // paid slots (5)
+  for(let i=0;i<5;i++){
+    const b = paid[i] || {time:'--:--', sport:'', event:'__________', tip:'🔒 Pago', unlock:false};
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-id', b.id || '');
+    tr.innerHTML = `<td>${b.time||'--:--'}</td><td>${b.sport||''}</td><td>${b.event||'__________'}</td><td>${(b.type==='paid' && b.unlock) ? b.tip : '🔒 Pago'}</td>`;
+    paidBody.appendChild(tr);
+  }
+}
+
+function renderHistory(){
+  const tbody = document.querySelector('#historyTable tbody');
+  tbody.innerHTML = '';
+  const rows = store.history || [];
+  if(rows.length===0){
+    const tr = document.createElement('tr'); tr.innerHTML = `<td colspan="7" class="small">Nenhum registro no histórico.</td>`; tbody.appendChild(tr); return;
+  }
+  const show = rows.slice(-50).reverse(); // most recent first
+  show.forEach(r=>{
+    const tr = document.createElement('tr');
+    let resText = '⏳ Aguardando', cls = 'result-wait';
+    if(r.result === 'win'){ resText = '✔️ Ganhou'; cls = 'result-win'; }
+    if(r.result === 'lose'){ resText = '❌ Perdeu'; cls = 'result-lose'; }
+    tr.innerHTML = `<td>${r.date||''}</td><td>${r.time||''}</td><td>${r.sport||''}</td><td>${r.event||''}</td><td>${r.type||''}</td><td>${r.tip||''}</td><td class="${cls}">${resText}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// admin editor
+function renderEditor(){
+  const root = document.getElementById('editorList');
+  root.innerHTML = '';
+  store.bets.forEach(b=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `
+      <div class="row"><input class="input col" data-id="${b.id}" data-field="event" value="${escapeHtml(b.event||'')}" /><input class="input" style="width:110px" data-id="${b.id}" data-field="time" value="${escapeHtml(b.time||'')}" /></div>
+      <div class="row" style="margin-top:8px">
+        <select class="input" data-id="${b.id}" data-field="sport" style="width:160px">
+          <option ${b.sport==='Futebol'?'selected':''}>Futebol</option>
+          <option ${b.sport==='Basquetebol'?'selected':''}>Basquetebol</option>
+          <option ${b.sport==='Tênis'?'selected':''}>Tênis</option>
+        </select>
+        <input class="input col" data-id="${b.id}" data-field="tip" value="${escapeHtml(b.tip||'')}" />
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label class="small">Tipo</label>
+        <select class="input" data-id="${b.id}" data-field="type" style="width:120px">
+          <option ${b.type==='free'?'selected':''} value="free">Grátis</option>
+          <option ${b.type==='paid'?'selected':''} value="paid">Pago</option>
+        </select>
+        <label class="small" style="margin-left:8px">Visível?</label><input type="checkbox" data-id="${b.id}" data-field="visible" ${b.visible?'checked':''} />
+        <label class="small" style="margin-left:8px">Desbloqueado?</label><input type="checkbox" data-id="${b.id}" data-field="unlock" ${b.unlock?'checked':''} />
+        <button class="btn" data-action="save" style="margin-left:auto">Salvar</button>
+        <button class="btn" data-action="del" style="background:#a11;color:#fff;margin-left:8px">Apagar</button>
+      </div>
+    `;
+    // attach handlers
+    card.querySelector('[data-action="save"]').onclick = ()=>{
+      const inputs = card.querySelectorAll('[data-field]');
+      inputs.forEach(inp=>{
+        const k = inp.getAttribute('data-field');
+        if(inp.type === 'checkbox') b[k] = inp.checked;
+        else b[k] = inp.value;
+      });
+      saveStore(); renderEditor(); renderToday();
+    };
+    card.querySelector('[data-action="del"]').onclick = ()=>{
+      if(!confirm('Apagar palpite?')) return;
+      store.bets = store.bets.filter(x=> x.id !== b.id);
+      saveStore(); renderEditor(); renderToday();
+    };
+    root.appendChild(card);
+  });
+  // if no bets, show small hint
+  if(store.bets.length===0){
+    const hint = document.createElement('div'); hint.className='small'; hint.textContent = 'Sem palpites no momento. Use +Novo palpite para criar.'; root.appendChild(hint);
+  }
+}
+
+// history editor
+function renderHistEditor(){
+  const root = document.getElementById('histEditor');
+  root.innerHTML = '';
+  (store.history||[]).forEach(r=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `
+      <div class="row"><input class="input col" data-id="${r.id}" data-field="event" value="${escapeHtml(r.event||'')}" /><input class="input" style="width:120px" data-id="${r.id}" data-field="time" value="${escapeHtml(r.time||'')}" /></div>
+      <div class="row" style="margin-top:8px">
+        <select class="input" data-id="${r.id}" data-field="sport" style="width:160px">
+          <option ${r.sport==='Futebol'?'selected':''}>Futebol</option>
+          <option ${r.sport==='Basquetebol'?'selected':''}>Basquetebol</option>
+          <option ${r.sport==='Tênis'?'selected':''}>Tênis</option>
+        </select>
+        <input class="input col" data-id="${r.id}" data-field="tip" value="${escapeHtml(r.tip||'')}" />
+      </div>
+      <div class="row" style="margin-top:8px">
+        <select class="input" data-id="${r.id}" data-field="result" style="width:160px">
+          <option ${r.result==='win'?'selected':''} value="win">Ganhou</option>
+          <option ${r.result==='lose'?'selected':''} value="lose">Perdeu</option>
+          <option ${r.result==='wait'?'selected':''} value="wait">Aguardando</option>
+        </select>
+        <button class="btn" data-action="save">Salvar</button>
+        <button class="btn" data-action="del" style="background:#a11;color:#fff;margin-left:8px">Apagar</button>
+      </div>
+    `;
+    card.querySelector('[data-action="save"]').onclick = ()=>{
+      const inputs = card.querySelectorAll('[data-field]');
+      inputs.forEach(inp=>{
+        const k = inp.getAttribute('data-field'); r[k] = inp.value;
+      });
+      saveStore(); renderHistory(); renderHistEditor();
+    };
+    card.querySelector('[data-action="del"]').onclick = ()=>{
+      if(!confirm('Apagar registro?')) return;
+      store.history = store.history.filter(x=> x.id !== r.id);
+      saveStore(); renderHistory(); renderHistEditor();
+    };
+    root.appendChild(card);
+  });
+  if((store.history||[]).length===0){
+    const hint = document.createElement('div'); hint.className='small'; hint.textContent = 'Sem histórico ainda. Use +Novo registro para adicionar.'; root.appendChild(hint);
+  }
+}
+
+// helpers
+function escapeHtml(s){ if(!s) return ''; return s.toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// login and events
+document.getElementById('openAdminBtn').onclick = ()=>{
+  document.getElementById('adminPanel').classList.remove('hidden');
+  document.getElementById('adminPanel').scrollIntoView({behavior:'smooth'});
+};
+document.getElementById('loginBtn').onclick = ()=>{
+  const em = document.getElementById('adminEmail').value.trim();
+  const pw = document.getElementById('adminPass').value;
+  if(em === ADMIN_EMAIL && pw === ADMIN_PASS){
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('dashboard').classList.remove('hidden');
+    speak('Login efetuado com sucesso');
+    showNotify('Login efetuado');
+    renderEditor(); renderHistEditor();
+  } else {
+    alert('Credenciais inválidas');
+    speak('Usuário ou senha inválidos');
+  }
+};
+document.getElementById('logoutBtn').onclick = ()=>{
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('loginBox').style.display = 'block';
+  document.getElementById('adminPanel').classList.add('hidden');
+  showNotify('Desconectado');
+};
+
+// add / save
+document.getElementById('addBetBtn').onclick = ()=>{
+  const b = {id:uid(), sport:'Futebol', event:'Novo jogo', time:'--:--', tip:'', type:'free', visible:true, unlock:false};
+  store.bets.unshift(b); saveStore(); renderEditor(); renderToday();
+};
+document.getElementById('addHistBtn').onclick = ()=>{
+  const h = {id:uid(), date:new Date().toLocaleDateString('pt-BR'), time:new Date().toLocaleTimeString('pt-BR'), sport:'Futebol', event:'Novo registro', type:'free', tip:'', result:'wait'};
+  store.history.unshift(h); saveStore(); renderHistory(); renderHistEditor();
+};
+document.getElementById('saveLocalBtn').onclick = ()=>{ saveStore(); };
+document.getElementById('saveGitBtn').onclick = async ()=>{
+  // optional: saving to GitHub - require token in session (not implemented UI here for token)
+  alert('Salvar no GitHub: gere um token e implemente o fluxo no painel (opcional).');
+};
+
+// notifications subscribe
+document.getElementById('subscribeBtn').onclick = async ()=>{
+  if(!('Notification' in window)){ alert('Navegador não suporta notificações'); return; }
+  const perm = await Notification.requestPermission();
+  if(perm === 'granted'){ showNotify('Notificações ativadas'); speak('Notificações ativadas'); } else alert('Permissão negada');
+};
+
+// simulate payment: unlock premium for all
+document.getElementById('simulateBtn').onclick = ()=>{
+  store.bets.forEach(b=>{ if(b.type === 'paid'){ b.unlock = true; }});
+  // add purchase record to history
+  const h = {id:uid(), date:new Date().toLocaleDateString('pt-BR'), time:new Date().toLocaleTimeString('pt-BR'), sport:'Assinatura', event:'Compra Premium (simulada)', type:'paid', tip:'Assinatura', result:'wait'};
+  store.history.push(h);
+  saveStore(); renderToday(); renderHistory();
+  speak('Pagamento confirmado. Acesso premium liberado.');
+  showNotify('Pagamento simulado — premium liberado');
+  if(Notification.permission === 'granted'){ new Notification('MakeMaster', {body:'Pagamento confirmado — premium liberado'}); }
+};
+
+// tabs filter simple (scroll)
+document.getElementById('tabAll').onclick = ()=>{ window.scrollTo({top:0, behavior:'smooth'}) };
+document.getElementById('tabFootball').onclick = ()=>{ window.location.hash = '#today'; showNotify('Filtrando: Futebol (use editor para organizar)') };
+document.getElementById('tabBasket').onclick = ()=>{ window.location.hash = '#today'; showNotify('Filtrando: Basquetebol') };
+document.getElementById('tabTennis').onclick = ()=>{ window.location.hash = '#today'; showNotify('Filtrando: Tênis') };
+
+// storage listener to update multiple tabs
+window.addEventListener('storage', (e)=>{
+  if(e.key === 'mm_last_update'){ renderToday(); renderHistory(); showNotify('Novos palpites publicados'); speak('Novos palpites publicados'); if(Notification.permission === 'granted'){ new Notification('MakeMaster', {body:'Novos palpites publicados'}); } }
+});
+
+// init
+let store = loadStore();
+renderToday();
+renderHistory();
+
+// when admin opens, ensure editor/hist show current settings values
+document.getElementById('openAdminBtn').addEventListener('click', ()=>{
+  document.getElementById('entidade').value = store.settings.entidade || '12345';
+  document.getElementById('iban').value = store.settings.iban || '';
+  document.getElementById('wpp').value = store.settings.wpp || '';
+});
+
+// small helper to set settings on save (the input save is manual when admin changes fields and hits Save Local)
+document.getElementById('saveLocalBtn').addEventListener('click', ()=>{
+  store.settings.entidade = document.getElementById('entidade').value;
+  store.settings.iban = document.getElementById('iban').value;
+  store.settings.wpp = document.getElementById('wpp').value;
+  document.getElementById('entidadeDisplay').textContent = store.settings.entidade;
+  document.getElementById('refDisplay').textContent = '000000000';
+  saveStore();
+});
+</script>
 </body>
 </html>
