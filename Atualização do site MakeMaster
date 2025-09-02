@@ -1,195 +1,114 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>MakeMaster - Palpites</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MakeMaster - Palpites Esportivos</title>
   <style>
-    :root{--black:#0b0b0b;--yellow:#facc15;--red:#ef4444;--bg:#f7f7f8;--card:#ffffff}
-    *{box-sizing:border-box}
-    body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:#111}
-    header{background:var(--black);color:#fff;padding:14px 18px;position:sticky;top:0;z-index:20}
-    .wrap{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand h1{margin:0;font-size:1.4rem;color:var(--yellow)}
-    nav a{color:var(--yellow);text-decoration:none;margin-left:12px;font-weight:600}
-    main{max-width:1000px;margin:22px auto;padding:0 16px}
-    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 8px 20px rgba(2,6,23,.06);margin-bottom:18px}
-    table{width:100%;border-collapse:collapse;margin-top:10px}
-    th,td{padding:8px;text-align:center;border:1px solid #e6e6e6}
-    th{background:var(--black);color:#fff}
-    .btn{background:var(--black);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
-    .btn-yellow{background:var(--yellow);color:#0b0b0b}
-    .hl{color:var(--yellow);font-weight:700}
-    .res-win{color:green;font-weight:700}
-    .res-lose{color:var(--red);font-weight:700}
-    .res-wait{color:#b45309;font-weight:700}
-    footer{text-align:center;padding:18px;background:#0d0d0d;color:#ddd;margin-top:20px}
-    .locked{background:#fff7ed;border:1px dashed #f59e0b;padding:10px;border-radius:8px}
-    @media(max-width:720px){ .wrap{flex-direction:column;align-items:flex-start} }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f3f4f6;
+      color: #111;
+    }
+    header {
+      background: #111;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    nav a {
+      color: #ffcc00;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+      color: red;
+    }
+    .container {
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #111;
+    }
+    .pago {
+      background: #f8d7da;
+    }
+    footer {
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding: 15px;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <div class="brand">
-      <h1>⚽ MakeMaster 🎯</h1>
-      <div style="font-size:.95rem;color:#d1d5db">Futebol • Basquetebol • Tênis</div>
-    </div>
+  <header>
+    <h1>⚽ MakeMaster 🎯</h1>
+    <p>Os melhores palpites de Futebol, Basquetebol e Tênis!</p>
     <nav>
-      <a href="#dia">Palpites do Dia</a>
-      <a href="#hist">Histórico</a>
-      <a href="#contato">Contato</a>
-      <a href="#admin" style="margin-left:10px;" class="btn">Admin</a>
+      <a href="#">Início</a>
+      <a href="#">Palpites Gratuitos</a>
+      <a href="#">Palpites Premium</a>
+      <a href="#">Histórico</a>
+      <a href="#">Contato</a>
     </nav>
-  </div>
-</header>
+  </header>
 
-<main>
-  <!-- PALPITES DO DIA -->
-  <section id="dia" class="card">
-    <h2>🔥 Palpites do Dia</h2>
-    <p class="small">Abaixo: <span class="hl">2 grátis</span> e <span class="hl">5 pagos</span> (premium bloqueado).</p>
-
-    <!-- EDITAR AQUI: PALPITES GRÁTIS (2 por dia) -->
-    <h3 style="margin-top:12px">🔓 Grátis</h3>
-    <table>
-      <tr><th>Hora</th><th>Esporte</th><th>Jogo</th><th>Palpite</th></tr>
-
-      <!-- Linha 1 - EXEMPLO: substitui os valores -->
-      <tr>
-        <td>18:00</td>
-        <td>Futebol</td>
-        <td>Benfica x Porto</td>
-        <td>+2.5 Gols</td>
-      </tr>
-
-      <!-- Linha 2 - EXEMPLO: substitui os valores -->
-      <tr>
-        <td>20:30</td>
-        <td>Basquetebol</td>
-        <td>Lakers x Celtics</td>
-        <td>Lakers vence</td>
-      </tr>
-    </table>
-    <!-- FIM PALPITES GRÁTIS -->
-
-    <!-- EDITAR AQUI: PALPITES PAGOS (5 por dia) -->
-    <h3 style="margin-top:16px">🔒 Premium (Pago) <span style="color:var(--red);margin-left:10px">Promoção: 1 mês — 5.000 Kz</span></h3>
-
-    <!-- Botão de pagamento simulado -->
-    <div style="margin:8px 0" class="locked">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-        <div>
-          <b>Pagamento por referência (simulação)</b><br>
-          Entidade: <b>12345</b> • Referência: <b>000000000</b> (será gerada automaticamente quando integrar)
-        </div>
-        <div>
-          <button id="simPayBtn" class="btn btn-yellow">Simular Pagamento</button>
-        </div>
-      </div>
+  <div class="container">
+    <!-- Palpites Gratuitos -->
+    <div class="card">
+      <h2>🎁 Palpites Gratuitos</h2>
+      <ul>
+        <li>Grátis 1: ______________________</li>
+        <li>Grátis 2: ______________________</li>
+      </ul>
     </div>
 
-    <table>
-      <tr><th>Hora</th><th>Esporte</th><th>Jogo</th><th>Palpite (bloqueado)</th></tr>
+    <!-- Palpites Pagos -->
+    <div class="card pago">
+      <h2>💎 Palpites Premium (Pago)</h2>
+      <ul>
+        <li>🔒 Pago 1: ______________________</li>
+        <li>🔒 Pago 2: ______________________</li>
+        <li>🔒 Pago 3: ______________________</li>
+        <li>🔒 Pago 4: ______________________</li>
+        <li>🔒 Pago 5: ______________________</li>
+      </ul>
+      <p><b>Valor:</b> 5.000 Kz / semana</p>
+      <p>Pagamento via MB WAY/Express ou IBAN:</p>
+      <ul>
+        <li><b>MB WAY/Express:</b> 924227691</li>
+        <li><b>IBAN:</b> 0052 0000 3263 0991 1012 9</li>
+        <li><b>Titular:</b> Dorivaldo Bengui Pululo</li>
+      </ul>
+      <p>📲 Envie o comprovativo para WhatsApp: <b>924227691</b></p>
+    </div>
 
-      <!-- Linha 1 pago (bloqueado): substitui com teu palpite -->
-      <tr>
-        <td>19:00</td>
-        <td>Futebol</td>
-        <td>Real Madrid x Barcelona</td>
-        <td>🔒 Pago — visualizar apenas para assinantes</td>
-      </tr>
+    <!-- Histórico -->
+    <div class="card">
+      <h2>📜 Histórico de Palpites</h2>
+      <p>Aqui ficarão guardados os palpites anteriores (ganhos ✅ ou perdidos ❌).</p>
+      <ul>
+        <li>Exemplo: Jogo A x B - ✅</li>
+        <li>Exemplo: Jogo C x D - ❌</li>
+      </ul>
+    </div>
+  </div>
 
-      <!-- Linha 2 pago -->
-      <tr>
-        <td>19:30</td>
-        <td>Basquetebol</td>
-        <td>Chicago Bulls x Miami Heat</td>
-        <td>🔒 Pago — visualizar apenas para assinantes</td>
-      </tr>
-
-      <!-- Linha 3 pago -->
-      <tr>
-        <td>20:00</td>
-        <td>Tênis</td>
-        <td>Alcaraz x Medvedev</td>
-        <td>🔒 Pago — visualizar apenas para assinantes</td>
-      </tr>
-
-      <!-- Linha 4 pago -->
-      <tr>
-        <td>20:45</td>
-        <td>Futebol</td>
-        <td>Manchester City x Arsenal</td>
-        <td>🔒 Pago — visualizar apenas para assinantes</td>
-      </tr>
-
-      <!-- Linha 5 pago -->
-      <tr>
-        <td>21:30</td>
-        <td>Futebol</td>
-        <td>Atletico x Sevilla</td>
-        <td>🔒 Pago — visualizar apenas para assinantes</td>
-      </tr>
-    </table>
-    <!-- FIM PALPITES PAGOS -->
-  </section>
-
-  <!-- HISTÓRICO -->
-  <section id="hist" class="card">
-    <h2>📖 Histórico (últimos 10+)</h2>
-    <p class="small muted">Histórico visível apenas para assinantes (no teste será mostrado após pagar).</p>
-
-    <!-- EDITAR AQUI: HISTÓRICO - adiciona linhas, pelo menos 10 registros -->
-    <table>
-      <tr><th>Data</th><th>Hora</th><th>Equipes</th><th>Tipo</th><th>Palpite</th><th>Resultado</th></tr>
-
-      <!-- Exemplos: substitui / adiciona linhas conforme necessidade -->
-      <tr><td>01/09/2025</td><td>21:00</td><td>Barcelona x Real Madrid</td><td>Pago</td><td>Real Madrid vence</td><td class="res-win">✔️ Ganhou</td></tr>
-      <tr><td>01/09/2025</td><td>19:30</td><td>Milan x Inter</td><td>Grátis</td><td>Ambos marcam</td><td class="res-lose">❌ Perdeu</td></tr>
-      <tr><td>31/08/2025</td><td>18:30</td><td>Chelsea x Arsenal</td><td>Pago</td><td>Ambos marcam</td><td class="res-wait">⏳ Aguardando</td></tr>
-      <tr><td>30/08/2025</td><td>20:00</td><td>Benfica x Porto</td><td>Grátis</td><td>+2.5 Gols</td><td class="res-win">✔️ Ganhou</td></tr>
-      <tr><td>29/08/2025</td><td>21:00</td><td>Real Madrid x Atletico</td><td>Pago</td><td>Real Madrid vence</td><td class="res-lose">❌ Perdeu</td></tr>
-      <tr><td>28/08/2025</td><td>19:00</td><td>Liverpool x Everton</td><td>Grátis</td><td>Ambos marcam</td><td class="res-win">✔️ Ganhou</td></tr>
-      <tr><td>27/08/2025</td><td>20:30</td><td>Juventus x Napoli</td><td>Pago</td><td>Juventus vence</td><td class="res-win">✔️ Ganhou</td></tr>
-      <tr><td>26/08/2025</td><td>18:00</td><td>Nadal x Djokovic</td><td>Pago</td><td>Djokovic vence</td><td class="res-lose">❌ Perdeu</td></tr>
-      <tr><td>25/08/2025</td><td>17:00</td><td>Spurs x Chelsea</td><td>Grátis</td><td>Ambos marcam</td><td class="res-wait">⏳ Aguardando</td></tr>
-      <tr><td>24/08/2025</td><td>21:30</td><td>AC Milan x Lazio</td><td>Pago</td><td>AC Milan vence</td><td class="res-win">✔️ Ganhou</td></tr>
-
-      <!-- FIM EXEMPLOS - adiciona mais linhas se quiseres -->
-    </table>
-  </section>
-
-  <!-- CONTATO / TERMOS -->
-  <section id="contato" class="card">
-    <h2>📮 Contato & Pagamento</h2>
-    <p><b>MB WAY/Express:</b> 924227691 • <b>IBAN:</b> 0052 0000 3263 0991 1012 9</p>
-    <p>Envie comprovativo para WhatsApp: <b>924227691</b></p>
-    <p class="small">Termos: apenas maiores de 18 anos. Aposte com responsabilidade.</p>
-  </section>
-</main>
-
-<footer>
-  <div>© 2025 MakeMaster — Todos os direitos reservados</div>
-</footer>
-
-<!-- SCRIPT SIMPLES PARA BOTAO DE PAGAMENTO SIMULADO -->
-<script>
-  document.getElementById('simPayBtn').addEventListener('click', function(){
-    // Simulação: desbloqueia os palpites pagos nesta sessão
-    alert('Pagamento simulado confirmado! Acesso premium liberado nesta sessão.');
-    // mostrar histórico premium: aqui abrimos todas as linhas pagas na página
-    // implementação simples: substitui as células de premium com o texto do palpite
-    const rows = document.querySelectorAll('#dia table tr');
-    rows.forEach(r=>{
-      // procura linhas que contenham '🔒 Pago'
-      if(r.innerHTML.includes('🔒 Pago')){
-        r.cells[3].textContent = 'Palpite: (exemplo) — agora visível';
-      }
-    });
-    // mostra histórico (em teste, assume que premium agora visível)
-    // podes adicionar lógica mais avançada depois
-  });
-</script>
+  <footer>
+    <p>© 2025 MakeMaster - Todos os direitos reservados</p>
+  </footer>
 </body>
 </html>
