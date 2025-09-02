@@ -1,0 +1,680 @@
+// App.jsx
+import React, { useEffect, useState } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
+/*
+  MakeMaster - Single-file React App
+  - LocalStorage based
+  - Age + Phone gate (fullscreen) saved per device
+  - Admin protected with password: Rosalia20
+  - Statistics (daily clicks / total) in admin
+  - 3 columns: Futebol (3), Basquetebol (2), Tênis (2)
+  - Admin can create/edit/delete bets, mark results, view registrations
+*/
+
+// ------------ Config ------------
+const ADMIN_PASSWORD = "Rosalia20";
+const STORAGE_KEY = "mm_makemaster_v2";
+
+// ------------ Helpers ------------
+function uid() {
+  return "id_" + Math.random().toString(36).slice(2, 9);
+}
+function todayKey() {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+}
+function defaultStore() {
+  return {
+    bets: [], // {id, sport, time, event, tip, type:'gratis'|'pago', visible:true, unlock:false, createdAt}
+    history: [], // {id, date, time, sport, event, tip, type, result:'wait'|'win'|'lose'}
+    registrations: [], // {phone, firstSeenISO, lastSeenISO, visits}
+    stats: {}, // { 'YYYY-MM-DD': count, total: number }
+    settings: { entidade: "12345", iban: "0052 0000 3263 0991 1012 9", wpp: "924227691" },
+  };
+}
+function loadStore() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultStore();
+    return JSON.parse(raw);
+  } catch {
+    return defaultStore();
+  }
+}
+function saveStore(obj) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+  localStorage.setItem("mm_last_update", Date.now().toString());
+}
+
+// ------------ Styles injection (small) ------------
+function injectStyles() {
+  const css = `
+  :root{--black:#0b0b0b;--yellow:#facc15;--red:#ef4444;--bg:#071124}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:#fff}
+  .container{max-width:1100px;margin:0 auto;padding:14px}
+  header{display:flex;justify-content:space-between;align-items:center;padding:10px 0}
+  .brand h1{margin:0;color:var(--yellow)}
+  .topbar{display:flex;align-items:center;gap:8px}
+  .btn{background:#0b0b0b;color:#fff;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);cursor:pointer}
+  .btn-gold{background:var(--yellow);color:#0b0b0b;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+  .btn-red{background:var(--red);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+  .cols{display:flex;gap:12px;margin-top:12px}
+  .col{flex:1;background:linear-gradient(180deg,#061022,#07112b);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);min-height:220px}
+  .col h3{margin:0 0 6px 0;color:var(--yellow)}
+  .date{font-size:12px;color:#9ca3af;margin-bottom:8px}
+  .slot{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.02)}
+  .slot.locked{background:#fff7ed;color:#92400e;border:1px dashed #f59e0b}
+  .history-card{background:#fff;color:#111;padding:10px;border-radius:10px;margin-top:12px}
+  .history-table{width:100%;border-collapse:collapse}
+  .history-table th, .history-table td{padding:8px;border:1px solid #e6e6e6;color:#111}
+  .admin-area{background:#071124;padding:12px;border-radius:10px;margin-top:12px}
+  .form-row{display:flex;gap:8px;margin-bottom:8px}
+  input, select, textarea{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff;flex:1}
+  textarea{min-height:70px}
+  .small{font-size:12px;color:#9ca3af}
+  .center{text-align:center}
+  .full-screen-gate{position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.9),rgba(0,0,0,0.95));display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
+  .gate-box{background:#fff;color:#111;padding:18px;border-radius:12px;max-width:420px;width:100%}
+  .list{display:flex;flex-direction:column;gap:8px}
+  @media(max-width:880px){ .cols{flex-direction:column} .form-row{flex-direction:column} }
+  `;
+  if (!document.getElementById("mm_makemaster_styles")) {
+    const s = document.createElement("style");
+    s.id = "mm_makemaster_styles";
+    s.innerHTML = css;
+    document.head.appendChild(s);
+  }
+}
+
+// ------------ Main App ------------
+export default function App() {
+  injectStyles();
+
+  const [store, setStore] = useState(() => loadStore());
+  const [gateOpen, setGateOpen] = useState(() => {
+    // check if user already confirmed on this device
+    try {
+      const known = localStorage.getItem("mm_user_phone");
+      return !known;
+    } catch {
+      return true;
+    }
+  });
+  const [notify, setNotify] = useState("");
+  const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem("mm_admin") === "1");
+
+  // Keep store synced to localStorage
+  useEffect(() => {
+    saveStore(store);
+  }, [store]);
+
+  // Listen for updates from other tabs
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === "mm_last_update") {
+        setStore(loadStore());
+        showNotify("Novos dados publicados");
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  function showNotify(msg, speakText) {
+    setNotify(msg);
+    if (speakText && "speechSynthesis" in window) {
+      const u = new SpeechSynthesisUtterance(speakText);
+      u.lang = "pt-BR";
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    }
+    setTimeout(() => setNotify(""), 3000);
+  }
+
+  // -------- Gate: confirm age + phone --------
+  function handleGateConfirm({ phone, isAdult }) {
+    if (!isAdult) {
+      alert("Acesso negado para menores de 18 anos.");
+      return;
+    }
+    if (!phone || phone.trim().length < 6) {
+      alert("Por favor insira um número de telefone válido.");
+      return;
+    }
+    // register or update registration
+    const nowISO = new Date().toISOString();
+    setStore((s) => {
+      const regs = [...s.registrations];
+      const found = regs.find((r) => r.phone === phone);
+      if (found) {
+        found.lastSeenISO = nowISO;
+        found.visits = (found.visits || 0) + 1;
+      } else {
+        regs.unshift({ phone, firstSeenISO: nowISO, lastSeenISO: nowISO, visits: 1 });
+      }
+      // stats: update today's count and total
+      const stats = { ...(s.stats || {}) };
+      const key = todayKey();
+      stats[key] = (stats[key] || 0) + 1;
+      stats.total = (stats.total || 0) + 1;
+      const newStore = { ...s, registrations: regs, stats };
+      return newStore;
+    });
+    // save phone to localStorage as "user" so next visits skip gate on same device
+    localStorage.setItem("mm_user_phone", phone);
+    setGateOpen(false);
+    showNotify("Acesso concedido. Bem-vindo!");
+  }
+
+  // -------- Registrations export (CSV) --------
+  function exportRegistrationsCSV() {
+    const rows = [["phone", "firstSeen", "lastSeen", "visits"]];
+    store.registrations.forEach((r) => rows.push([r.phone, r.firstSeenISO, r.lastSeenISO, r.visits]));
+    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/\"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "registrations.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // -------- Bets & History management (Admin) --------
+  function createBet(b) {
+    const bet = { id: uid(), createdAt: new Date().toISOString(), visible: true, unlock: false, ...b };
+    setStore((s) => ({ ...s, bets: [bet, ...s.bets] }));
+    showNotify("Palpite criado", "Palpite criado");
+  }
+  function updateBet(id, changes) {
+    setStore((s) => ({ ...s, bets: s.bets.map((it) => (it.id === id ? { ...it, ...changes } : it)) }));
+    showNotify("Palpite atualizado");
+  }
+  function deleteBet(id) {
+    if (!confirm("Apagar palpite?")) return;
+    setStore((s) => ({ ...s, bets: s.bets.filter((it) => it.id !== id) }));
+    showNotify("Palpite apagado");
+  }
+  function addHistory(entry) {
+    const h = {
+      id: uid(),
+      date: entry.date || new Date().toLocaleDateString("pt-BR"),
+      time: entry.time || new Date().toLocaleTimeString("pt-BR"),
+      result: entry.result || "wait",
+      ...entry,
+    };
+    setStore((s) => ({ ...s, history: [h, ...s.history] }));
+    showNotify("Registro adicionado");
+  }
+  function updateHistoryResult(id, newResult) {
+    setStore((s) => ({ ...s, history: s.history.map((h) => (h.id === id ? { ...h, result: newResult } : h)) }));
+    showNotify("Resultado atualizado");
+  }
+  function deleteHistory(id) {
+    if (!confirm("Apagar registro?")) return;
+    setStore((s) => ({ ...s, history: s.history.filter((h) => h.id !== id) }));
+    showNotify("Registro apagado");
+  }
+
+  function simulatePaymentUnlock() {
+    setStore((s) => ({
+      ...s,
+      bets: s.bets.map((b) => (b.type === "pago" ? { ...b, unlock: true } : b)),
+      history: [
+        {
+          id: uid(),
+          date: new Date().toLocaleDateString("pt-BR"),
+          time: new Date().toLocaleTimeString("pt-BR"),
+          sport: "Assinatura",
+          event: "Compra Premium (simulada)",
+          tip: "Assinatura",
+          type: "pago",
+          result: "wait",
+        },
+        ...s.history,
+      ],
+    }));
+    showNotify("Pagamento simulado — premium liberado", "Pagamento confirmado. Acesso premium liberado");
+    if (Notification.permission === "granted") {
+      new Notification("MakeMaster", { body: "Pagamento confirmado — premium liberado" });
+    }
+  }
+
+  // -------- Stats helpers --------
+  function getTodayCount() {
+    return (store.stats && store.stats[todayKey()]) || 0;
+  }
+  function getTotalCount() {
+    return (store.stats && store.stats.total) || 0;
+  }
+  function getDailyList() {
+    const s = store.stats || {};
+    const keys = Object.keys(s).filter((k) => k !== "total").sort().reverse();
+    return keys.map((k) => ({ date: k, count: s[k] }));
+  }
+
+  // -------- Subcomponents & Views --------
+
+  function TopBar() {
+    return (
+      <header className="container">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div className="brand">
+            <h1>MakeMaster 🎯</h1>
+            <div className="small">Palpites — Futebol • Basquetebol • Tênis</div>
+          </div>
+          <div className="topbar">
+            <button
+              className="btn"
+              onClick={() => {
+                Notification && Notification.requestPermission().then((p) => p === "granted" && showNotify("Notificações ativadas"));
+              }}
+            >
+              Receber notificações
+            </button>
+            <button
+              className="btn-gold"
+              onClick={() => {
+                // open login prompt
+                const pass = prompt("Senha administrativa:");
+                if (pass === ADMIN_PASSWORD) {
+                  sessionStorage.setItem("mm_admin", "1");
+                  setIsAdmin(true);
+                  showNotify("Autenticado como administrador");
+                  window.location.href = "/admin";
+                } else {
+                  alert("Senha incorreta");
+                }
+              }}
+            >
+              Área Administrativa
+            </button>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  function SportColumn({ sport, title, freeSlots, paidSlots }) {
+    const free = store.bets.filter((b) => b.sport === sport && b.type === "gratis" && b.visible).slice(0, freeSlots);
+    const paid = store.bets.filter((b) => b.sport === sport && b.type === "pago" && b.visible).slice(0, paidSlots);
+    return (
+      <div className="col">
+        <h3>{title}</h3>
+        <div className="date">{new Date().toLocaleDateString("pt-BR")}</div>
+
+        <div style={{ marginTop: 8 }}>
+          <div className="small">🔓 Gratuitos</div>
+          {free.length === 0 && <div className="slot">-- Espaço livre --</div>}
+          {free.map((b) => (
+            <div key={b.id} className="slot">
+              <div className="small">{b.time || "--:--"}</div>
+              <div style={{ fontWeight: 700 }}>{b.event}</div>
+              <div className="small">{b.tip}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 8 }}>
+          <div className="small">🔒 Premium</div>
+          {paid.length === 0 && <div className="slot locked">-- Espaço livre --</div>}
+          {paid.map((b) => (
+            <div key={b.id} className={`slot ${b.unlock ? "" : "locked"}`}>
+              <div className="small">{b.time || "--:--"}</div>
+              <div style={{ fontWeight: 700 }}>{b.event}</div>
+              <div className="small">{b.unlock ? b.tip : "🔒 Pago — assine para ver"}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 10 }}>
+          <Link to={`/historico/${sport.toLowerCase()}`} className="btn">
+            Ver Histórico
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  function HomeView() {
+    return (
+      <>
+        <TopBar />
+        <div className="container">
+          <div className="cols">
+            <SportColumn sport="Futebol" title="⚽ Futebol" freeSlots={3} paidSlots={3} />
+            <SportColumn sport="Basquetebol" title="🏀 Basquetebol" freeSlots={2} paidSlots={2} />
+            <SportColumn sport="Tênis" title="🎾 Tênis" freeSlots={2} paidSlots={2} />
+          </div>
+
+          <div className="history-card" style={{ marginTop: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ fontWeight: 700 }}>📖 Histórico (últimos registros)</div>
+              <div style={{ color: "var(--red)", fontWeight: 700 }}>Promoção: 1 mês — 5.000 Kz</div>
+            </div>
+
+            <div style={{ marginTop: 10, overflowX: "auto" }}>
+              <table className="history-table">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Esporte</th>
+                    <th>Evento</th>
+                    <th>Tipo</th>
+                    <th>Palpite</th>
+                    <th>Resultado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {store.history.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="center small">
+                        Nenhum registro no histórico.
+                      </td>
+                    </tr>
+                  ) : (
+                    store.history.map((h) => (
+                      <tr key={h.id}>
+                        <td>{h.date}</td>
+                        <td>{h.time}</td>
+                        <td>{h.sport}</td>
+                        <td>{h.event}</td>
+                        <td>{h.type}</td>
+                        <td>{h.tip}</td>
+                        <td>{h.result === "win" ? "✔️ Ganhou" : h.result === "lose" ? "❌ Perdeu" : "⏳ Aguardando"}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
+            <div style={{ flex: 1, background: "#071124", padding: 12, borderRadius: 10 }}>
+              <div className="small">Pagamento (simulado)</div>
+              <div style={{ marginTop: 8 }}>Entidade: <b>{store.settings.entidade}</b></div>
+              <div style={{ marginTop: 6 }}>IBAN: <b>{store.settings.iban}</b></div>
+              <div style={{ marginTop: 6 }}>WhatsApp: <b>{store.settings.wpp}</b></div>
+              <div style={{ marginTop: 10 }}>
+                <button className="btn-gold" onClick={() => simulatePaymentUnlock()}>
+                  Simular pagamento
+                </button>
+              </div>
+            </div>
+
+            <div style={{ width: 320, background: "#fff", color: "#111", padding: 12, borderRadius: 10 }}>
+              <div style={{ fontWeight: 700 }}>Termos</div>
+              <div className="small" style={{ marginTop: 8 }}>
+                Acesso permitido apenas para maiores de 18 anos. Aposte com responsabilidade.
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  function HistoricoView() {
+    const { sport } = useParams();
+    const name = sport === "futebol" ? "Futebol" : sport === "basquete" || sport === "basquetebol" ? "Basquetebol" : "Tênis";
+    const rows = store.history.filter((h) => h.sport.toLowerCase().includes(sport));
+    return (
+      <>
+        <TopBar />
+        <div className="container">
+          <Link to="/" className="small" style={{ color: "#9ca3af" }}>⬅ Voltar</Link>
+          <h2 style={{ marginTop: 8 }}>{`Histórico de ${name}`}</h2>
+          <div className="history-card" style={{ marginTop: 8 }}>
+            {rows.length === 0 ? (
+              <div className="small">Nenhum registro</div>
+            ) : (
+              rows.map((r) => (
+                <div key={r.id} style={{ padding: 8, borderBottom: "1px solid #eef2f7", display: "flex", justifyContent: "space-between" }}>
+                  <div>
+                    <div className="small">{r.date} {r.time}</div>
+                    <div style={{ fontWeight: 700 }}>{r.event}</div>
+                    <div className="small">{r.tip} • {r.type}</div>
+                  </div>
+                  <div style={{ alignSelf: "center" }}>{r.result === "win" ? <span style={{ color: "green" }}>✔️</span> : r.result === "lose" ? <span style={{ color: "red" }}>❌</span> : <span style={{ color: "#b45309" }}>⏳</span>}</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  function LoginView() {
+    const [senha, setSenha] = useState("");
+    const navigate = useNavigate();
+    function submit(e) {
+      e.preventDefault();
+      if (senha === ADMIN_PASSWORD) {
+        sessionStorage.setItem("mm_admin", "1");
+        setIsAdmin(true);
+        showNotify("Autenticado como administrador");
+        navigate("/admin");
+      } else {
+        alert("Senha incorreta");
+      }
+    }
+    return (
+      <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ background: "#fff", color: "#111", padding: 20, borderRadius: 8, width: 360 }}>
+          <h3>Login Administrativo</h3>
+          <form onSubmit={submit}>
+            <input placeholder="Senha" value={senha} onChange={(e) => setSenha(e.target.value)} style={{ width: "100%", marginTop: 8 }} />
+            <div style={{ marginTop: 10 }}>
+              <button className="btn" type="submit">Entrar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  function AdminView() {
+    const [form, setForm] = useState({ sport: "Futebol", event: "", time: "", tip: "", type: "gratis", visible: true });
+    function handleCreate(e) {
+      e.preventDefault();
+      if (!form.event) { alert("Preencha o evento"); return; }
+      createBet({ sport: form.sport, event: form.event, time: form.time, tip: form.tip, type: form.type, visible: form.visible });
+      setForm({ ...form, event: "", time: "", tip: "" });
+    }
+    return (
+      <>
+        <TopBar />
+        <div className="container">
+          <div className="admin-area">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h3>Painel Administrativo</h3>
+                <div className="small">Autenticado</div>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="btn" onClick={() => { setIsAdmin(false); sessionStorage.removeItem("mm_admin"); showNotify("Desconectado"); }}>Sair</button>
+                <button className="btn" onClick={() => resetDataPrompt()}>Resetar dados</button>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 12 }}>
+              <h4>Criar palpite</h4>
+              <form onSubmit={handleCreate}>
+                <div className="form-row">
+                  <select value={form.sport} onChange={(e) => setForm(f => ({ ...f, sport: e.target.value }))}>
+                    <option>Futebol</option>
+                    <option>Basquetebol</option>
+                    <option>Tênis</option>
+                  </select>
+                  <input placeholder="Evento (ex: Team A x Team B)" value={form.event} onChange={(e) => setForm(f => ({ ...f, event: e.target.value }))} />
+                  <input placeholder="Hora (ex: 20:30)" style={{ width: 110 }} value={form.time} onChange={(e) => setForm(f => ({ ...f, time: e.target.value }))} />
+                </div>
+                <div className="form-row">
+                  <input placeholder="Palpite (ex: +2.5)" value={form.tip} onChange={(e) => setForm(f => ({ ...f, tip: e.target.value }))} />
+                  <select value={form.type} onChange={(e) => setForm(f => ({ ...f, type: e.target.value }))}>
+                    <option value="gratis">Grátis</option>
+                    <option value="pago">Pago</option>
+                  </select>
+                  <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <input type="checkbox" checked={form.visible} onChange={(e) => setForm(f => ({ ...f, visible: e.target.checked }))} /> Visível
+                  </label>
+                </div>
+                <div style={{ marginTop: 8 }}>
+                  <button className="btn-gold" type="submit">Criar palpite</button>
+                  <button className="btn" type="button" onClick={() => addHistory({ sport: form.sport, event: form.event || "Registro rápido", tip: form.tip || "", type: form.type, result: "wait" })} style={{ marginLeft: 8 }}>Adicionar ao histórico</button>
+                </div>
+              </form>
+            </div>
+
+            {/* Palpites list */}
+            <div style={{ marginTop: 16 }}>
+              <h4>Palpites</h4>
+              {store.bets.length === 0 && <div className="small">Sem palpites</div>}
+              {store.bets.map(b => (
+                <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: 8, borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+                  <div style={{ flex: 1 }}>
+                    <div className="small">{b.time} • {b.sport}</div>
+                    <div style={{ fontWeight: 700 }}>{b.event}</div>
+                    <div className="small">{b.tip} • {b.type}</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button className="btn" onClick={() => updateBet(b.id, { unlock: !b.unlock })}>{b.unlock ? "Bloquear" : "Desbloquear"}</button>
+                    <button className="btn" onClick={() => updateBet(b.id, { visible: !b.visible })}>{b.visible ? "Ocultar" : "Mostrar"}</button>
+                    <button className="btn" onClick={() => { const ev = prompt("Editar evento:", b.event); if (ev !== null) updateBet(b.id, { event: ev }); }}>Editar</button>
+                    <button className="btn-red" onClick={() => deleteBet(b.id)}>Apagar</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Histórico admin */}
+            <div style={{ marginTop: 16 }}>
+              <h4>Histórico</h4>
+              {store.history.length === 0 && <div className="small">Sem histórico</div>}
+              {store.history.map(h => (
+                <div key={h.id} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: 8, borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+                  <div>
+                    <div className="small">{h.date} {h.time} — {h.sport}</div>
+                    <div style={{ fontWeight: 700 }}>{h.event}</div>
+                    <div className="small">{h.tip} • {h.type}</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button className="btn" onClick={() => updateHistoryResult(h.id, h.result === "win" ? "lose" : "win")}>{h.result === "win" ? "Marcar como perdido" : "Marcar como ganho"}</button>
+                    <button className="btn-red" onClick={() => deleteHistory(h.id)}>Apagar</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Registrations & Stats */}
+            <div style={{ marginTop: 16 }}>
+              <h4>Registros (visitantes)</h4>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+                <div className="small">Total: <b>{getTotalCount()}</b></div>
+                <div className="small">Hoje: <b>{getTodayCount()}</b></div>
+                <button className="btn" onClick={() => exportRegistrationsCSV()}>Exportar CSV</button>
+              </div>
+              <div style={{ maxHeight: 200, overflow: "auto", borderTop: "1px solid rgba(255,255,255,0.03)" }}>
+                {store.registrations.length === 0 && <div className="small">Nenhum registro</div>}
+                {store.registrations.map(r => (
+                  <div key={r.phone} style={{ padding: 8, borderBottom: "1px solid rgba(255,255,255,0.03)", display: "flex", justifyContent: "space-between" }}>
+                    <div>
+                      <div style={{ fontWeight: 700 }}>{r.phone}</div>
+                      <div className="small">1ª: {new Date(r.firstSeenISO).toLocaleString()} • Últ: {new Date(r.lastSeenISO).toLocaleString()}</div>
+                    </div>
+                    <div className="small">Visitas: {r.visits}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ marginTop: 8 }}>
+                <h5>Registo diário</h5>
+                <div className="small">
+                  {getDailyList().map(d => (
+                    <div key={d.date}>{d.date} — {d.count}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 12 }}>
+              <button className="btn" onClick={() => showNotify("Salvar local (já automático)")} >Salvar local</button>
+              <button className="btn-red" onClick={() => simulatePaymentUnlock()} style={{ marginLeft: 8 }}>Simular pagamento</button>
+            </div>
+
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  function resetDataPrompt() {
+    if (!confirm("Resetar todos os dados locais? (Isto apagará tudo no seu navegador)")) return;
+    setStore(defaultStore());
+    localStorage.removeItem("mm_user_phone");
+    showNotify("Dados resetados");
+  }
+
+  // -------- Full-screen gate UI (shown only if gateOpen true) --------
+  function GateOverlay() {
+    const [phone, setPhone] = useState(localStorage.getItem("mm_user_phone") || "");
+    const [isAdult, setIsAdult] = useState(true);
+    return (
+      <div className="full-screen-gate">
+        <div className="gate-box">
+          <h3 style={{ marginTop: 0 }}>Confirmação de idade</h3>
+          <div className="small">É maior de 18 anos? (obrigatório)</div>
+          <div style={{ marginTop: 10 }}>
+            <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input type="radio" name="age" checked={isAdult === true} onChange={() => setIsAdult(true)} /> Sim
+              <input type="radio" name="age" checked={isAdult === false} onChange={() => setIsAdult(false)} style={{ marginLeft: 12 }} /> Não
+            </label>
+          </div>
+
+          <div style={{ marginTop: 12 }}>
+            <div className="small">Digite o seu número de telefone (WhatsApp):</div>
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Ex: 924227691" style={{ width: "100%", marginTop: 8 }} />
+          </div>
+
+          <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+            <button className="btn-gold" onClick={() => handleGateConfirm({ phone: phone.trim(), isAdult })}>Confirmar</button>
+            <button className="btn" onClick={() => { if (!isAdult) alert("Acesso negado para menores de 18 anos."); else { /* do nothing */ } }}>Cancelar</button>
+          </div>
+
+          <div style={{ marginTop: 10 }} className="small">
+            Ao confirmar, o seu número será registrado para notificações e estatísticas. Não compartilhamos dados publicamente.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // -------- Render app (routing) --------
+  return (
+    <BrowserRouter>
+      {/* show gate overlay if new visitor */}
+      {gateOpen && <GateOverlay />}
+
+      <Routes>
+        <Route path="/" element={<HomeView />} />
+        <Route path="/historico/:sport" element={<HistoricoView />} />
+        <Route path="/login" element={<LoginView />} />
+        <Route path="/admin" element={isAdmin ? <AdminView /> : <LoginView />} />
+      </Routes>
+
+      {/* small notify bubble */}
+      {notify && <div style={{ position: "fixed", right: 16, bottom: 16, background: "#08122a", color: "#fff", padding: 12, borderRadius: 10 }}>{notify}</div>}
+    </BrowserRouter>
+  );
+}
