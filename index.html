@@ -1,618 +1,153 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MakeMaster — Palpites</title>
-<style>
-  :root{--bg:#071124;--card:#0f1724;--accent:#facc15;--danger:#ef4444;--muted:#9ca3af;--panel:#061022}
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:#fff;line-height:1.35}
-  .container{max-width:1200px;margin:0 auto;padding:18px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0}
-  .brand h1{margin:0;color:var(--accent);font-size:20px}
-  .brand p{margin:0;color:var(--muted);font-size:13px}
-  .btn{background:#0b1220;color:#fff;border-radius:8px;padding:8px 12px;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
-  .btn-gold{background:var(--accent);color:#071124;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
-  .cols{display:flex;gap:12px;margin-top:14px}
-  .col{flex:1;background:linear-gradient(180deg,#07112b,#07162d);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);min-height:300px}
-  .col h3{margin:0 0 8px 0;color:var(--accent)}
-  .date{font-size:12px;color:var(--muted);margin-bottom:8px}
-  .slot{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.02)}
-  .slot.locked{background:#fff7ed;color:#92400e;border:1px dashed #f59e0b}
-  .history-card{background:#fff;color:#111;padding:10px;border-radius:10px;margin-top:18px}
-  .history-table{width:100%;border-collapse:collapse}
-  .history-table th,.history-table td{padding:8px;border:1px solid #eee;color:#111;font-size:13px}
-  .admin-only{display:none}
-  .top-actions{display:flex;gap:8px;align-items:center}
-  .full-screen-gate{position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.9),rgba(0,0,0,0.95));display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
-  .gate-box{background:#fff;color:#111;padding:18px;border-radius:12px;max-width:420px;width:100%}
-  .small{font-size:12px;color:var(--muted)}
-  .center{text-align:center}
-  .notice{position:fixed;right:16px;bottom:16px;background:#071124;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04)}
-  input,select,textarea{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff;width:100%}
-  .admin-panel{background:var(--panel);padding:12px;border-radius:10px;margin-top:12px}
-  .form-row{display:flex;gap:8px}
-  .form-row > *{flex:1}
-  @media(max-width:980px){ .cols{flex-direction:column} .form-row{flex-direction:column} }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DUR - Palpites Esportivos</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+    }
+    header {
+      background: #000;
+      color: #FFD700;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: 3px;
+    }
+    nav {
+      margin-top: 10px;
+    }
+    nav button {
+      margin: 5px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      padding: 20px;
+    }
+    .card {
+      background: #1c1c1c;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+    }
+    .card h2 {
+      margin-top: 0;
+      color: #FFD700;
+    }
+    .palpite {
+      background: #333;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .palpite input {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      margin-top: 5px;
+    }
+    .historico {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .historico a {
+      color: #FFD700;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    footer {
+      background: #000;
+      text-align: center;
+      padding: 15px;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #FFD700;
+      position: relative;
+    }
+    footer img {
+      position: absolute;
+      right: 15px;
+      bottom: 10px;
+      width: 40px;
+    }
+  </style>
 </head>
 <body>
-  <div id="app">
-    <div class="container">
-      <header>
-        <div class="brand">
-          <h1>🎯 MakeMaster</h1>
-          <p>Palpites — Futebol • Basquetebol • Ténis</p>
-        </div>
-        <div class="top-actions">
-          <button class="btn" id="btn-notify">Notificações</button>
-          <button class="btn" id="btn-checkout">Comprar Premium</button>
-          <!-- admin link is hidden (not displayed), user must use exact URL /#/admin-secret -->
-        </div>
-      </header>
+  <header>
+    <h1>✨ DUR ✨</h1>
+    <p>Os melhores palpites de Futebol, Basquetebol e Tênis!</p>
+  </header>
 
-      <!-- 3 columns -->
-      <div class="cols" id="cols">
-        <!-- columns injected by JS -->
+  <div class="container">
+    <!-- Futebol -->
+    <div class="card">
+      <h2>⚽ Futebol</h2>
+      <div class="palpite">
+        <label>Data:</label>
+        <input type="text" placeholder="dd/mm/aaaa">
+        <label>Palpite 1:</label>
+        <input type="text" placeholder="Time A x Time B - Hora">
+        <label>Palpite 2:</label>
+        <input type="text" placeholder="Time A x Time B - Hora">
       </div>
-
-      <!-- histórico resumo -->
-      <div class="history-card" id="historyCard">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="font-weight:700">📖 Histórico (últimos)</div>
-          <div style="color:var(--danger);font-weight:700" id="promoTag">Promoção: 1 mês — 5.000 Kz</div>
-        </div>
-        <div style="margin-top:10px;overflow-x:auto">
-          <table class="history-table" id="historyTable">
-            <thead><tr><th>Data</th><th>Hora</th><th>Esporte</th><th>Evento</th><th>Tipo</th><th>Palpite</th><th>Resultado</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- admin panel route handled by JS at #/admin-secret -->
-
-      <footer style="margin-top:18px;text-align:center;color:var(--muted)">
-        © 2025 MakeMaster - Todos os direitos reservados
-      </footer>
-    </div>
-
-    <div id="notice" class="notice" style="display:none"></div>
-
-    <!-- Gate (age confirmation only, no phone) -->
-    <div id="gate" class="full-screen-gate" style="display:none">
-      <div class="gate-box">
-        <h3 style="margin-top:0">Confirmação de idade</h3>
-        <div class="small">Você tem mais de 18 anos?</div>
-        <div style="margin-top:12">
-          <label style="display:flex;gap:8px;align-items:center"><input type="radio" name="age" id="ageYes" checked/> Sim <input type="radio" name="age" id="ageNo" style="margin-left:12px"/> Não</label>
-        </div>
-        <div style="margin-top:12;display:flex;gap:8px">
-          <button class="btn-gold" id="confirmAge">Confirmar</button>
-        </div>
-        <div style="margin-top:10" class="small">Ao confirmar, será permitido visualizar o site. Sem recolha de telefone ou e-mail.</div>
+      <div class="historico">
+        <a href="#">📜 Ver histórico</a>
       </div>
     </div>
 
-    <!-- Checkout modal (reference) -->
-    <div id="modal" class="full-screen-gate" style="display:none">
-      <div class="gate-box" id="modalBox">
-        <h3 style="margin-top:0">Gerar referência de pagamento</h3>
-        <div class="small">Atenção: apenas pagamento por referência. Após pagamento a referência deve ser marcada como paga no painel administrativo.</div>
-        <div style="margin-top:10">
-          <label class="small">Nome (opcional):</label>
-          <input id="buyerName" placeholder="Nome (opcional)" />
-        </div>
-        <div style="margin-top:10" class="small">
-          <label>Plano:</label>
-          <select id="planSelect"><option value="premium">1 mês — 5.000 Kz (premium)</option></select>
-        </div>
-        <div style="margin-top:12;display:flex;gap:8">
-          <button class="btn-gold" id="generateRef">Gerar Referência</button>
-          <button class="btn" id="cancelModal">Cancelar</button>
-        </div>
-        <div id="refResult" style="margin-top:12;display:none;background:#071124;color:#fff;padding:10px;border-radius:8px">
-          <div class="small">Referência gerada:</div>
-          <div style="font-weight:700;margin-top:6" id="refCode"></div>
-          <div class="small" style="margin-top:6">Instruções: efectue o pagamento usando a sua entidade de pagamento habitual e coloque a referência acima. Depois volte ao admin para confirmar.</div>
-        </div>
+    <!-- Basquetebol -->
+    <div class="card">
+      <h2>🏀 Basquetebol</h2>
+      <div class="palpite">
+        <label>Data:</label>
+        <input type="text" placeholder="dd/mm/aaaa">
+        <label>Palpite 1:</label>
+        <input type="text" placeholder="Time A x Time B - Hora">
+        <label>Palpite 2:</label>
+        <input type="text" placeholder="Time A x Time B - Hora">
+      </div>
+      <div class="historico">
+        <a href="#">📜 Ver histórico</a>
       </div>
     </div>
 
+    <!-- Tênis -->
+    <div class="card">
+      <h2>🎾 Tênis</h2>
+      <div class="palpite">
+        <label>Data:</label>
+        <input type="text" placeholder="dd/mm/aaaa">
+        <label>Palpite 1:</label>
+        <input type="text" placeholder="Jogador A x Jogador B - Hora">
+        <label>Palpite 2:</label>
+        <input type="text" placeholder="Jogador A x Jogador B - Hora">
+      </div>
+      <div class="historico">
+        <a href="#">📜 Ver histórico</a>
+      </div>
+    </div>
   </div>
 
-<script>
-/*
-  MakeMaster — Single-file static site with admin panel (localStorage)
-  - Public: view bets, generate payment reference (no phone/email shown)
-  - Admin (secret): #/admin-secret -> login (admin/1234) -> manage bets, history, references
-*/
-
-// Storage key
-const KEY = 'mm_store_v3';
-
-// default store
-function defaultStore(){
-  return {
-    bets: [],       // {id, sport, event, time, tip, type:'gratis'|'pago', visible:true, unlock:false, createdAt}
-    history: [],    // {id,date,time,sport,event,tip,type,result}
-    registrations: [] // {id, name, ref, plan, createdAt, status:'pending'|'paid'}
-  };
-}
-function loadStore(){ try{ const s=localStorage.getItem(KEY); return s?JSON.parse(s):defaultStore(); }catch(e){return defaultStore();} }
-function saveStore(s){ localStorage.setItem(KEY, JSON.stringify(s)); localStorage.setItem('mm_last_update', Date.now()); }
-
-// helpers
-function uid(){ return 'id_'+Math.random().toString(36).slice(2,9); }
-function todayDate(){ return new Date().toLocaleDateString('pt-BR'); }
-function nowTime(){ return new Date().toLocaleTimeString('pt-BR'); }
-
-// UI elements
-const colsEl = document.getElementById('cols');
-const historyTbody = document.querySelector('#historyTable tbody');
-const noticeEl = document.getElementById('notice');
-const gateEl = document.getElementById('gate');
-const modalEl = document.getElementById('modal');
-const refResult = document.getElementById('refResult');
-const refCodeEl = document.getElementById('refCode');
-
-let store = loadStore();
-renderAll();
-
-// Age gate (only confirm age, no phone)
-function checkGate(){
-  if(!localStorage.getItem('mm_age_confirmed')){
-    gateEl.style.display = 'flex';
-  }
-}
-checkGate();
-document.getElementById('confirmAge').addEventListener('click', () => {
-  const no = document.getElementById('ageNo').checked;
-  if(no){ alert('Acesso negado para menores de 18 anos.'); return; }
-  localStorage.setItem('mm_age_confirmed','1');
-  gateEl.style.display = 'none';
-  showNotice('Acesso concedido. Bem-vindo!');
-});
-
-// show notice
-function showNotice(msg, t=2500){
-  noticeEl.textContent = msg;
-  noticeEl.style.display = 'block';
-  setTimeout(()=> noticeEl.style.display = 'none', t);
-}
-
-// render functions
-function renderAll(){
-  renderColumns();
-  renderHistory();
-  saveStore(store);
-}
-
-function renderColumns(){
-  colsEl.innerHTML = '';
-  const sports = [
-    {key:'Futebol', free:3, paid:3},
-    {key:'Basquetebol', free:2, paid:2},
-    {key:'Ténis', free:2, paid:2}
-  ];
-  sports.forEach(sp=>{
-    const col = document.createElement('div');
-    col.className = 'col';
-    const title = document.createElement('h3'); title.textContent = sp.key; col.appendChild(title);
-    const date = document.createElement('div'); date.className='date'; date.textContent = todayDate(); col.appendChild(date);
-
-    // free
-    const freeLabel = document.createElement('div'); freeLabel.className='small'; freeLabel.textContent='🔓 Gratuitos'; col.appendChild(freeLabel);
-    const freeBets = store.bets.filter(b=>b.sport===sp.key && b.type==='gratis' && b.visible).slice(0,sp.free);
-    if(freeBets.length===0) col.appendChild(makeSlot('-- Espaço livre --'));
-    freeBets.forEach(b => {
-      const s = makeSlot('', b);
-      col.appendChild(s);
-    });
-
-    // paid
-    const paidLabel = document.createElement('div'); paidLabel.className='small'; paidLabel.style.marginTop='8px'; paidLabel.textContent='🔒 Premium'; col.appendChild(paidLabel);
-    const paidBets = store.bets.filter(b=>b.sport===sp.key && b.type==='pago' && b.visible).slice(0,sp.paid);
-    if(paidBets.length===0) col.appendChild(makeSlot('-- Espaço livre --', null, true));
-    paidBets.forEach(b => {
-      const s = makeSlot('', b, !b.unlock);
-      col.appendChild(s);
-    });
-
-    const histBtn = document.createElement('button'); histBtn.className='btn'; histBtn.style.marginTop='10px'; histBtn.textContent='Ver Histórico';
-    histBtn.onclick = ()=> { window.location.hash = '#/hist-'+sp.key.toLowerCase(); openHistoryFor(sp.key); };
-    col.appendChild(histBtn);
-
-    colsEl.appendChild(col);
-  });
-}
-
-function makeSlot(text='', bet=null, locked=false){
-  const div = document.createElement('div');
-  div.className = 'slot' + (locked? ' locked' : '');
-  if(bet){
-    const ttime = document.createElement('div'); ttime.className='small'; ttime.textContent = bet.time || '--:--';
-    const ev = document.createElement('div'); ev.style.fontWeight='700'; ev.textContent = bet.event;
-    const tip = document.createElement('div'); tip.className='small'; tip.textContent = (locked? (bet.unlock? bet.tip : '🔒 Pago — referência necessária') : bet.tip);
-    div.appendChild(ttime); div.appendChild(ev); div.appendChild(tip);
-  } else {
-    const t = document.createElement('div'); t.textContent = text; div.appendChild(t);
-  }
-  return div;
-}
-
-function renderHistory(){
-  historyTbody.innerHTML = '';
-  if(store.history.length===0){
-    const tr = document.createElement('tr');
-    const td = document.createElement('td'); td.colSpan=7; td.className='center small'; td.textContent='Nenhum registro no histórico.';
-    tr.appendChild(td); historyTbody.appendChild(tr); return;
-  }
-  store.history.forEach(h=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${h.date}</td><td>${h.time}</td><td>${h.sport}</td><td>${h.event}</td><td>${h.type}</td><td>${h.tip}</td><td>${h.result==='win'?'✔️ Ganhou':h.result==='lose'?'❌ Perdeu':'⏳ Aguardando'}</td>`;
-    historyTbody.appendChild(tr);
-  });
-}
-
-// modal checkout
-document.getElementById('btn-checkout').addEventListener('click', ()=> {
-  modalEl.style.display = 'flex';
-  refResult.style.display = 'none';
-  refCodeEl.textContent = '';
-  document.getElementById('buyerName').value = '';
-});
-document.getElementById('cancelModal').addEventListener('click', ()=> { modalEl.style.display='none'; });
-
-document.getElementById('generateRef').addEventListener('click', ()=>{
-  const name = document.getElementById('buyerName').value.trim();
-  const plan = document.getElementById('planSelect').value;
-  const ref = generateReference();
-  const reg = { id: uid(), name: name || '', ref, plan, createdAt:new Date().toISOString(), status:'pending' };
-  store.registrations.unshift(reg); saveStore(store); refCodeEl.textContent = ref; refResult.style.display='block';
-  showNotice('Referência gerada: ' + ref, 4000);
-});
-
-// reference generator
-function generateReference(){
-  // Format: REF-YYYYMMDD-XXXX
-  const d = new Date(); const y=d.getFullYear(); const m=(d.getMonth()+1).toString().padStart(2,'0'); const day=d.getDate().toString().padStart(2,'0');
-  const rnd = Math.random().toString(36).slice(2,8).toUpperCase();
-  return `REF-${y}${m}${day}-${rnd}`;
-}
-
-// Admin routing and login
-function route(){
-  const hash = location.hash || '#/';
-  if(hash === '#/admin-secret'){
-    showAdminLogin();
-  } else if(hash.startsWith('#/hist-')){
-    const sp = hash.replace('#/hist-','');
-    openHistoryFor(sp.charAt(0).toUpperCase() + sp.slice(1));
-  } else {
-    // home
-    document.querySelector('.container').style.display = 'block';
-  }
-}
-window.addEventListener('hashchange', route);
-route();
-
-// Admin login UI
-function showAdminLogin(){
-  // If already logged in
-  if(sessionStorage.getItem('mm_admin')==='1'){ showAdminPanel(); return; }
-  // show a simple prompt for credentials (mobile-friendly)
-  const user = prompt('Usuário admin:','admin');
-  const pass = prompt('Senha:','');
-  if(user==='admin' && pass==='1234'){
-    sessionStorage.setItem('mm_admin','1');
-    showNotice('Autenticado como admin');
-    showAdminPanel();
-  } else {
-    alert('Credenciais incorretas.');
-    location.hash = '/';
-  }
-}
-
-// Admin panel render
-function showAdminPanel(){
-  // hide main content and show admin UI below container
-  document.querySelector('.container').style.display = 'block';
-  // create admin area if not exists
-  if(document.getElementById('adminArea')){ renderAdmin(); return; }
-  const adminDiv = document.createElement('div');
-  adminDiv.id = 'adminArea';
-  adminDiv.className = 'container';
-  adminDiv.innerHTML = `
-    <div class="admin-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <h3 style="margin:0;color:var(--accent)">Painel Administrativo</h3>
-          <div class="small">Link secreto • Autenticado</div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn" id="admin-logout">Sair</button>
-          <button class="btn" id="exportCsv">Exportar Registos CSV</button>
-          <button class="btn" id="simulatePay">Simular pagamento (teste)</button>
-        </div>
-      </div>
-
-      <div style="margin-top:12">
-        <h4 style="margin:6px 0">Criar palpite</h4>
-        <form id="createBetForm">
-          <div class="form-row">
-            <select id="betSport"><option>Futebol</option><option>Basquetebol</option><option>Ténis</option></select>
-            <input id="betEvent" placeholder="Evento (ex: Team A x Team B)" />
-            <input id="betTime" placeholder="Hora (ex: 20:30)" style="width:120px" />
-          </div>
-          <div class="form-row" style="margin-top:8px">
-            <input id="betTip" placeholder="Palpite (ex: +2.5)" />
-            <select id="betType"><option value="gratis">Grátis</option><option value="pago">Pago</option></select>
-            <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="betVisible" checked/> Visível</label>
-          </div>
-          <div style="margin-top:8px"><button class="btn-gold" type="submit">Criar palpite</button> <button class="btn" id="addHistoryQuick" type="button">Adicionar ao histórico</button></div>
-        </form>
-      </div>
-
-      <div style="margin-top:14">
-        <h4 style="margin:6px 0">Palpites</h4>
-        <div id="betsList"></div>
-      </div>
-
-      <div style="margin-top:14">
-        <h4 style="margin:6px 0">Histórico</h4>
-        <div id="histList"></div>
-      </div>
-
-      <div style="margin-top:14">
-        <h4 style="margin:6px 0">Registos (referências)</h4>
-        <div id="regsList"></div>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(adminDiv);
-  renderAdmin();
-  // bind logout
-  document.getElementById('admin-logout').onclick = () => { sessionStorage.removeItem('mm_admin'); location.hash = '/'; showNotice('Desconectado'); };
-  document.getElementById('exportCsv').onclick = exportRegistrationsCSV;
-  document.getElementById('simulatePay').onclick = simulatePaymentUnlock;
-  document.getElementById('createBetForm').addEventListener('submit', (e)=>{ e.preventDefault(); handleCreateBet(); });
-  document.getElementById('addHistoryQuick').onclick = ()=> {
-    const ev = document.getElementById('betEvent').value || 'Registro rápido';
-    const tip = document.getElementById('betTip').value || '';
-    addHistory({ sport: document.getElementById('betSport').value, event:ev, tip, type: document.getElementById('betType').value });
-  };
-}
-
-// admin render contents
-function renderAdmin(){
-  // bets list
-  const el = document.getElementById('betsList');
-  el.innerHTML = '';
-  if(store.bets.length===0) el.innerHTML = '<div class="small">Sem palpites</div>';
-  store.bets.forEach(b=>{
-    const wrap = document.createElement('div'); wrap.style.padding='8px'; wrap.style.borderBottom='1px solid rgba(255,255,255,0.03)'; wrap.style.display='flex'; wrap.style.justifyContent='space-between'; wrap.style.alignItems='center';
-    const left = document.createElement('div'); left.innerHTML = `<div class="small">${b.time} • ${b.sport}</div><div style="font-weight:700">${b.event}</div><div class="small">${b.tip} • ${b.type}</div>`;
-    const actions = document.createElement('div');
-    const btnUnlock = document.createElement('button'); btnUnlock.className='btn'; btnUnlock.textContent = b.unlock? 'Bloquear' : 'Desbloquear'; btnUnlock.onclick = ()=> { updateBet(b.id,{unlock: !b.unlock}); };
-    const btnVis = document.createElement('button'); btnVis.className='btn'; btnVis.textContent = b.visible? 'Ocultar' : 'Mostrar'; btnVis.onclick = ()=> { updateBet(b.id,{visible: !b.visible}); };
-    const btnEdit = document.createElement('button'); btnEdit.className='btn'; btnEdit.textContent='Editar'; btnEdit.onclick = ()=> {
-      const ev = prompt('Editar evento:', b.event); if(ev!==null) updateBet(b.id,{event:ev});
-    };
-    const btnDel = document.createElement('button'); btnDel.className='btn'; btnDel.style.background='var(--danger)'; btnDel.style.color='#fff'; btnDel.textContent='Apagar'; btnDel.onclick = ()=> { if(confirm('Apagar palpite?')) deleteBet(b.id); };
-    actions.appendChild(btnUnlock); actions.appendChild(btnVis); actions.appendChild(btnEdit); actions.appendChild(btnDel);
-    wrap.appendChild(left); wrap.appendChild(actions);
-    el.appendChild(wrap);
-  });
-
-  // history list
-  const hEl = document.getElementById('histList'); hEl.innerHTML = '';
-  if(store.history.length===0) hEl.innerHTML = '<div class="small">Sem histórico</div>';
-  store.history.forEach(h=>{
-    const w = document.createElement('div'); w.style.padding='8px'; w.style.borderBottom='1px solid rgba(255,255,255,0.03)'; w.style.display='flex'; w.style.justifyContent='space-between';
-    const left = document.createElement('div'); left.innerHTML = `<div class="small">${h.date} ${h.time} — ${h.sport}</div><div style="font-weight:700">${h.event}</div><div class="small">${h.tip} • ${h.type}</div>`;
-    const right = document.createElement('div'); right.style.display='flex'; right.style.gap='8px';
-    const btnRes = document.createElement('button'); btnRes.className='btn'; btnRes.textContent = h.result==='win'? 'Marcar como perdido' : 'Marcar como ganho'; btnRes.onclick = ()=> { updateHistoryResult(h.id, h.result==='win'?'lose':'win'); };
-    const btnDel = document.createElement('button'); btnDel.className='btn'; btnDel.style.background='var(--danger)'; btnDel.style.color='#fff'; btnDel.textContent='Apagar'; btnDel.onclick = ()=> { if(confirm('Apagar registro?')) deleteHistory(h.id); };
-    right.appendChild(btnRes); right.appendChild(btnDel);
-    w.appendChild(left); w.appendChild(right);
-    hEl.appendChild(w);
-  });
-
-  // registrations
-  const rEl = document.getElementById('regsList'); rEl.innerHTML = '';
-  if(store.registrations.length===0) rEl.innerHTML = '<div class="small">Sem registos</div>';
-  store.registrations.forEach(r=>{
-    const w = document.createElement('div'); w.style.padding='8px'; w.style.borderBottom='1px solid rgba(255,255,255,0.03)'; w.style.display='flex'; w.style.justifyContent='space-between'; w.style.alignItems='center';
-    const left = document.createElement('div'); left.innerHTML = `<div style="font-weight:700">${r.ref}</div><div class="small">${r.name||'—'} • ${new Date(r.createdAt).toLocaleString()}</div><div class="small">Plano: ${r.plan}</div>`;
-    const right = document.createElement('div'); right.style.display='flex'; right.style.gap='8px';
-    const btnPay = document.createElement('button'); btnPay.className='btn'; btnPay.textContent = r.status==='paid'? 'Pago' : 'Marcar pago'; btnPay.onclick = ()=> { if(r.status!=='paid'){ markRefPaid(r.ref); } };
-    const btnDel = document.createElement('button'); btnDel.className='btn'; btnDel.style.background='var(--danger)'; btnDel.style.color='#fff'; btnDel.textContent='Apagar'; btnDel.onclick = ()=> { if(confirm('Apagar registo?')) { store.registrations = store.registrations.filter(x=>x.ref!==r.ref); saveStore(store); renderAdmin(); } };
-    right.appendChild(btnPay); right.appendChild(btnDel);
-    w.appendChild(left); w.appendChild(right);
-    rEl.appendChild(w);
-  });
-
-  // sync home view
-  renderAll();
-}
-
-// admin actions
-function handleCreateBet(){
-  const sport = document.getElementById('betSport').value;
-  const event = document.getElementById('betEvent').value.trim();
-  const time = document.getElementById('betTime').value.trim();
-  const tip = document.getElementById('betTip').value.trim();
-  const type = document.getElementById('betType').value;
-  const visible = document.getElementById('betVisible').checked;
-  if(!event){ alert('Preencha o evento'); return; }
-  const b = { id: uid(), sport, event, time, tip, type, visible, unlock:false, createdAt: new Date().toISOString() };
-  store.bets.unshift(b); saveStore(store); renderAdmin(); showNotice('Palpite criado');
-  document.getElementById('betEvent').value=''; document.getElementById('betTime').value=''; document.getElementById('betTip').value='';
-}
-function updateBet(id, changes){ store.bets = store.bets.map(b=> b.id===id? {...b,...changes} : b ); saveStore(store); renderAdmin(); }
-function deleteBet(id){ store.bets = store.bets.filter(b=>b.id!==id); saveStore(store); renderAdmin(); }
-function addHistory(entry){ const h = { id: uid(), date: entry.date || todayDate(), time: entry.time || nowTime(), result: entry.result || 'wait', ...entry }; store.history.unshift(h); saveStore(store); renderAdmin(); }
-function updateHistoryResult(id,newRes){ store.history = store.history.map(h=> h.id===id? {...h,result:newRes} : h ); saveStore(store); renderAdmin(); }
-function deleteHistory(id){ store.history = store.history.filter(h=>h.id!==id); saveStore(store); renderAdmin(); }
-
-// registrations functions
-function exportRegistrationsCSV(){
-  const rows = [['ref','name','plan','createdAt','status']];
-  store.registrations.forEach(r=> rows.push([r.ref, r.name, r.plan, r.createdAt, r.status]));
-  const csv = rows.map(r=> r.map(c=> `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'registrations.csv'; a.click(); URL.revokeObjectURL(url);
-}
-
-// mark reference paid -> unlock pago bets for this customer
-function markRefPaid(ref){
-  const reg = store.registrations.find(r=>r.ref===ref);
-  if(!reg) { alert('Referência não encontrada'); return; }
-  reg.status = 'paid';
-  // Option: when a reg becomes 'paid', we can unlock all 'pago' bets for that reg.
-  // We'll store list of unlockedRefs to allow showing paid content based on ref ownership.
-  store.registrations = store.registrations.map(r=> r.ref===ref? reg : r );
-  saveStore(store); renderAdmin(); showNotice('Referência marcada como paga: ' + ref);
-}
-
-// simulate payment unlock for testing: mark all pending as paid and unlock paid bets globally
-function simulatePaymentUnlock(){
-  if(!confirm('Simular pagamento: irá marcar todas as referencias pendentes como pagas e desbloquear palpites pagos.')) return;
-  store.registrations.forEach(r=> r.status='paid');
-  // unlock paid bets globally (makes site show paid tips)
-  store.bets = store.bets.map(b=> b.type==='pago' ? {...b, unlock:true} : b );
-  saveStore(store); renderAdmin(); showNotice('Simulação: pagamentos marcados e palpites desbloqueados');
-}
-
-// when a registration is marked paid, we could optionally unlock paid bets for that ref only.
-// For static site, to allow a user see paid content automatically we implement a simple mechanism:
-// A visitor who generated a reference can copy it; admin marks ref as paid; visitor can enter their ref on site to unlock (optional).
-// We'll add a small "Inserir referência" flow.
-function addRefUnlockUI(){
-  const footer = document.querySelector('footer');
-  let div = document.getElementById('refUnlockDiv');
-  if(div) return;
-  div = document.createElement('div'); div.id='refUnlockDiv'; div.style.marginTop='12px'; div.style.textAlign='center';
-  div.innerHTML = `<div class="small">Já pagou? Insira sua referência para desbloquear palpites pagos:</div><div style="display:flex;gap:8px;justify-content:center;margin-top:6px"><input id="unlockRefInput" placeholder="REF-YYYYMMDD-XXXX" style="width:200px"/><button class="btn" id="unlockRefBtn">Desbloquear</button></div><div id="unlockMsg" class="small" style="margin-top:6px"></div>`;
-  footer.parentNode.insertBefore(div, footer);
-  document.getElementById('unlockRefBtn').onclick = ()=>{
-    const val = document.getElementById('unlockRefInput').value.trim().toUpperCase();
-    const reg = store.registrations.find(r=>r.ref===val && r.status==='paid');
-    const msgEl = document.getElementById('unlockMsg');
-    if(reg){
-      // unlock paid bets for this user by saving unlockedRef in localStorage for this browser
-      const unlocked = JSON.parse(localStorage.getItem('mm_unlocked_refs')||'[]');
-      if(!unlocked.includes(val)) unlocked.push(val);
-      localStorage.setItem('mm_unlocked_refs', JSON.stringify(unlocked));
-      msgEl.textContent = 'Referência validada — palpites pagos desbloqueados para este dispositivo.';
-      renderAll();
-    } else {
-      msgEl.textContent = 'Referência não encontrada ou não confirmada. Aguarde confirmação no admin.';
-    }
-  };
-}
-addRefUnlockUI();
-
-// Show paid tips to user if either bet.unlock==true (global) OR user's local unlocked refs include a paid reg
-function isPaidVisibleForThisDevice(){
-  const unlocked = JSON.parse(localStorage.getItem('mm_unlocked_refs')||'[]');
-  // also if any global paid/unlocked exist, show them too (we consider bet.unlock true)
-  return unlocked; // array of refs
-}
-
-// open history for a sport (shows filtered entries in history card)
-function openHistoryFor(sport){
-  // filter historyTable to show only this sport
-  const rows = store.history.filter(h => h.sport.toLowerCase().includes(sport.toLowerCase()));
-  historyTbody.innerHTML = '';
-  if(rows.length===0){ const tr=document.createElement('tr'); const td=document.createElement('td'); td.colSpan=7; td.className='center small'; td.textContent='Nenhum registro'; tr.appendChild(td); historyTbody.appendChild(tr); return; }
-  rows.forEach(h=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML = `<td>${h.date}</td><td>${h.time}</td><td>${h.sport}</td><td>${h.event}</td><td>${h.type}</td><td>${h.tip}</td><td>${h.result==='win'?'✔️ Ganhou':h.result==='lose'?'❌ Perdeu':'⏳ Aguardando'}</td>`;
-    historyTbody.appendChild(tr);
-  });
-}
-
-// update view to respect per-device unlocked refs
-function renderAll(){
-  // when rendering paid bets, if bet.unlock true show tip; if not, but device has unlocked ref, show too
-  const unlockedRefs = JSON.parse(localStorage.getItem('mm_unlocked_refs')||'[]');
-  // if any reg is paid and its ref in unlockedRefs -> we consider paid visible
-  // but currently our makeSlot uses bet.unlock boolean; so we'll set bet.unlock true if global OR device has any paid ref.
-  const anyPaidRefUnlocked = store.registrations.some(r => r.status==='paid' && unlockedRefs.includes(r.ref));
-  // create a shallow copy to avoid modifying store.bets permanently: we'll calculate visibility in makeSlot by checking bet.unlock OR anyPaidRefUnlocked
-  // Simpler: if anyPaidRefUnlocked, temporarily set all paid bets unlock true for rendering.
-  // But below makeSlot receives locked flag computed.
-  colsEl.innerHTML = '';
-  const sports = [
-    {key:'Futebol', free:3, paid:3},
-    {key:'Basquetebol', free:2, paid:2},
-    {key:'Ténis', free:2, paid:2}
-  ];
-  sports.forEach(sp=>{
-    const col = document.createElement('div'); col.className='col';
-    const title=document.createElement('h3'); title.textContent=sp.key; col.appendChild(title);
-    const date=document.createElement('div'); date.className='date'; date.textContent=todayDate(); col.appendChild(date);
-
-    const freeLabel=document.createElement('div'); freeLabel.className='small'; freeLabel.textContent='🔓 Gratuitos'; col.appendChild(freeLabel);
-    const freeBets = store.bets.filter(b=>b.sport===sp.key && b.type==='gratis' && b.visible).slice(0,sp.free);
-    if(freeBets.length===0) col.appendChild(makeSlot('-- Espaço livre --'));
-    freeBets.forEach(b => col.appendChild(makeSlot('', b, false)));
-
-    const paidLabel=document.createElement('div'); paidLabel.className='small'; paidLabel.style.marginTop='8px'; paidLabel.textContent='🔒 Premium'; col.appendChild(paidLabel);
-    const paidBets = store.bets.filter(b=>b.sport===sp.key && b.type==='pago' && b.visible).slice(0,sp.paid);
-    if(paidBets.length===0) col.appendChild(makeSlot('-- Espaço livre --', null, true));
-    paidBets.forEach(b => {
-      // determine locked: locked if NOT b.unlock AND NOT anyPaidRefUnlocked
-      const locked = !(b.unlock || anyPaidRefUnlocked);
-      col.appendChild(makeSlot('', b, locked));
-    });
-
-    const histBtn = document.createElement('button'); histBtn.className='btn'; histBtn.style.marginTop='10px'; histBtn.textContent='Ver Histórico';
-    histBtn.onclick = ()=> { window.location.hash = '#/hist-'+sp.key.toLowerCase(); openHistoryFor(sp.key); };
-    col.appendChild(histBtn);
-
-    colsEl.appendChild(col);
-  });
-
-  // history table full (latest 20)
-  historyTbody.innerHTML = '';
-  const recent = store.history.slice(0,20);
-  if(recent.length===0){ const tr=document.createElement('tr'); const td=document.createElement('td'); td.colSpan=7; td.className='center small'; td.textContent='Nenhum registro no histórico.'; tr.appendChild(td); historyTbody.appendChild(tr); }
-  recent.forEach(h=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML = `<td>${h.date}</td><td>${h.time}</td><td>${h.sport}</td><td>${h.event}</td><td>${h.type}</td><td>${h.tip}</td><td>${h.result==='win'?'✔️ Ganhou':h.result==='lose'?'❌ Perdeu':'⏳ Aguardando'}</td>`;
-    historyTbody.appendChild(tr);
-  });
-
-  saveStore(store);
-}
-
-// quick helpers used by admin
-function updateHistoryResult(id,newRes){ store.history = store.history.map(h=> h.id===id? {...h,result:newRes} : h ); saveStore(store); renderAdmin(); }
-function deleteHistory(id){ store.history = store.history.filter(h=>h.id!==id); saveStore(store); renderAdmin(); }
-
-// initial sample data if empty (optional)
-if(store.bets.length===0 && store.history.length===0){
-  store.bets.push({ id: uid(), sport:'Futebol', event:'Team A x Team B', time:'20:00', tip:'+2.5', type:'gratis', visible:true, unlock:true, createdAt:new Date().toISOString() });
-  store.bets.push({ id: uid(), sport:'Futebol', event:'Team C x Team D', time:'21:00', tip:'1X', type:'pago', visible:true, unlock:false, createdAt:new Date().toISOString() });
-  store.bets.push({ id: uid(), sport:'Basquetebol', event:'Team E x Team F', time:'19:30', tip:'+8.5', type:'gratis', visible:true, unlock:true, createdAt:new Date().toISOString() });
-  saveStore(store);
-  renderAll();
-}
-
-// small extras
-document.getElementById('btn-notify').onclick = ()=> {
-  if('Notification' in window){ Notification.requestPermission().then(p=> p==='granted' && new Notification('MakeMaster',{body:'Notificações ativadas.'})); showNotice('Pedido de notificação enviado'); } else alert('Navegador não suporta notificações');
-};
-
-// mark reference as paid via admin markRefPaid(ref) - used by admin buttons
-// expose some functions to console for advanced usage
-window.MM = {
-  store, saveStore, loadStore, markRefPaid, generateReference, uid
-};
-
-</script>
+  <footer>
+    © 2025 DUR - Todos os direitos reservados
+    <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" alt="Brasil">
+  </footer>
 </body>
 </html>
