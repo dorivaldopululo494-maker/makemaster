@@ -1,35 +1,73 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DUR - Palpites Esportivos</title>
-  <link rel="stylesheet" href="style.css">
-  <script defer src="script.js"></script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DUR — Palpites Esportivos</title>
+<link rel="stylesheet" href="style.css"/>
+<script defer src="script.js"></script>
 </head>
 <body>
-  <div class="login-container">
-    <h1>🎯 DUR</h1>
-    <p class="slogan">Os melhores palpites em Futebol, Basquetebol e Tênis</p>
-    <div id="age-check">
-      <p>Você tem mais de 18 anos?</p>
-      <button onclick="ageConfirm(true)">Sim</button>
-      <button onclick="ageConfirm(false)">Não</button>
-    </div>
-    <div id="login-form" style="display:none;">
-      <h2>Entrar</h2>
-      <input type="text" id="userPhone" placeholder="Número de telefone">
-      <input type="password" id="userPass" placeholder="Senha">
-      <button onclick="login()">Entrar</button>
-      <p>Não tem conta? <a href="#" onclick="showRegister()">Registrar</a></p>
-    </div>
-    <div id="register-form" style="display:none;">
-      <h2>Registrar</h2>
-      <input type="text" id="newPhone" placeholder="Número de telefone">
-      <input type="password" id="newPass" placeholder="Senha">
-      <button onclick="register()">Registrar</button>
-      <p><a href="#" onclick="showLogin()">Já tenho conta</a></p>
+  <header class="header">
+    <div class="brand">DUR</div>
+    <div id="headerRight"></div>
+  </header>
+
+  <!-- Age gate -->
+  <div id="ageGate" class="overlay">
+    <div class="modal">
+      <h2 style="color:#ffd700">Você tem mais de 18 anos?</h2>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+        <button id="ageNo" class="btn danger">Não</button>
+        <button id="ageYes" class="btn gold">Sim</button>
+      </div>
     </div>
   </div>
+
+  <!-- Auth modal -->
+  <div id="authModal" class="overlay hidden">
+    <div class="modal">
+      <h2 id="authTitle" style="color:#ffd700">Registre-se</h2>
+      <div id="registerBox">
+        <input id="regPhone" placeholder="Número de telefone (ex: +244 92...)"/>
+        <input id="regPass" type="password" placeholder="Senha (mín 4 caracteres)"/>
+        <input id="regPass2" type="password" placeholder="Confirmar senha"/>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+          <button id="btnRegister" class="btn gold">Registrar</button>
+        </div>
+        <p class="small">Já tem conta? <a href="#" id="showLogin">Entrar</a></p>
+      </div>
+      <div id="loginBox" class="hidden">
+        <input id="logPhone" placeholder="Número de telefone"/>
+        <input id="logPass" type="password" placeholder="Senha"/>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+          <button id="btnLogin" class="btn gold">Entrar</button>
+        </div>
+        <p class="small">Não tem conta? <a href="#" id="showRegister">Registrar</a></p>
+      </div>
+    </div>
+  </div>
+
+  <main class="container" id="mainApp" style="display:none">
+    <section class="card">
+      <h3 class="section-title" data-target="futebolList">⚽ Futebol</h3>
+      <div id="futebolList" class="list"></div>
+    </section>
+
+    <section class="card">
+      <h3 class="section-title" data-target="basqueteList">🏀 Basquetebol</h3>
+      <div id="basqueteList" class="list"></div>
+    </section>
+
+    <section class="card">
+      <h3 class="section-title" data-target="tenisList">🎾 Tênis</h3>
+      <div id="tenisList" class="list"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>© 2025 DUR — Todos os direitos reservados</div>
+    <img src="https://flagcdn.com/w20/br.png" alt="Brasil" class="flag"/>
+  </footer>
 </body>
 </html>

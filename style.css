@@ -1,10 +1,28 @@
-body { font-family: Arial, sans-serif; margin: 0; background: #111; color: #FFD700; text-align: center; }
-header { background: #000; padding: 15px; font-size: 22px; font-weight: bold; }
-.login-container { max-width: 350px; margin: 50px auto; background: #1c1c1c; padding: 20px; border-radius: 12px; box-shadow: 0 0 10px rgba(255,0,0,0.6); }
-.login-container h1 { color: #FFD700; }
-.login-container input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 6px; border: none; }
-button { padding: 10px 20px; border: none; border-radius: 8px; background: #FFD700; font-weight: bold; cursor: pointer; }
-button:hover { background: #e6c200; }
-.palpite-card { background: #1c1c1c; margin: 15px; padding: 15px; border-radius: 10px; box-shadow: 0 0 8px rgba(255,0,0,0.5); }
-footer { margin-top: 20px; padding: 10px; background: #000; }
-a { color: #FFD700; text-decoration: none; font-weight: bold; }
+
+/* DUR — style (preto + dourado) */
+*{box-sizing:border-box}html,body{margin:0;padding:0;font-family:Inter,system-ui,Segoe UI,Arial;background:#050505;color:#fff}
+.header{background:linear-gradient(90deg,#060606,#121212);padding:14px 16px;color:#ffd700;display:flex;justify-content:space-between;align-items:center}
+.brand{font-weight:900;font-size:1.25rem;letter-spacing:2px}
+.container{max-width:980px;margin:12px auto;padding:0 12px}
+.card{background:#0f0f0f;border:1px solid #262626;border-radius:12px;padding:12px;margin-bottom:12px}
+.section-title{background:#ffd700;color:#000;padding:10px;border-radius:8px;font-weight:800;cursor:pointer}
+.list{padding:10px;display:grid;gap:10px}
+.item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;border-radius:8px;background:#111;border:1px solid #1f1f1f}
+.team{width:34%;font-weight:700;color:#fff}
+.team.right{text-align:right}
+.time-badge{min-width:56px;text-align:center;padding:10px;border-radius:50%;background:#ffd700;color:#000;font-weight:800}
+.code{width:100%;text-align:center;color:#e6d18f;margin-top:6px;font-size:0.93rem}
+.footer{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px;background:#050505;border-top:1px solid #222;color:#cfcfcf;position:relative}
+.flag{position:absolute;right:12px;bottom:12px;width:28px}
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.65);z-index:1000}
+.hidden{display:none}
+.modal{background:#0f0f0f;padding:18px;border-radius:12px;width:92%;max-width:420px;box-shadow:0 12px 30px rgba(0,0,0,0.6);text-align:center;border:1px solid #222}
+.btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:800}
+.btn.gold{background:#ffd700;color:#000}
+.btn.danger{background:#ff5c5c;color:#fff}
+input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #222;background:#0b0b0b;color:#fff;margin:8px 0}
+.form-line{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.form-line input{flex:1;min-width:120px}
+.logout{background:transparent;border:1px solid #333;color:#ffd700;padding:6px 10px;border-radius:8px;cursor:pointer}
+.small{color:#c0b88a;font-size:0.9rem}
+@media(max-width:480px){.team{width:30%}.time-badge{min-width:44px;padding:8px}}
