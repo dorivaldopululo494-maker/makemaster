@@ -1,12 +1,35 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>MakeMaster</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DUR - Palpites Esportivos</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div class="login-container">
+    <h1>🎯 DUR</h1>
+    <p class="slogan">Os melhores palpites em Futebol, Basquetebol e Tênis</p>
+    <div id="age-check">
+      <p>Você tem mais de 18 anos?</p>
+      <button onclick="ageConfirm(true)">Sim</button>
+      <button onclick="ageConfirm(false)">Não</button>
+    </div>
+    <div id="login-form" style="display:none;">
+      <h2>Entrar</h2>
+      <input type="text" id="userPhone" placeholder="Número de telefone">
+      <input type="password" id="userPass" placeholder="Senha">
+      <button onclick="login()">Entrar</button>
+      <p>Não tem conta? <a href="#" onclick="showRegister()">Registrar</a></p>
+    </div>
+    <div id="register-form" style="display:none;">
+      <h2>Registrar</h2>
+      <input type="text" id="newPhone" placeholder="Número de telefone">
+      <input type="password" id="newPass" placeholder="Senha">
+      <button onclick="register()">Registrar</button>
+      <p><a href="#" onclick="showLogin()">Já tenho conta</a></p>
+    </div>
+  </div>
+</body>
 </html>
